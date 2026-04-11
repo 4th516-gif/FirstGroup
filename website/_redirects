@@ -1,0 +1,11 @@
+# ── OAuth Callback Proxies ───────────────────────────────────
+# Forwards OAuth callbacks (with ?code & ?state) to Supabase edge functions
+# The 200 proxy preserves query params and lets Supabase handle the redirect back
+
+/auth/whoop/callback  https://bkdubocmtzruyojkknch.supabase.co/functions/v1/whoop-oauth  200
+/auth/polar/callback  https://bkdubocmtzruyojkknch.supabase.co/functions/v1/polar-oauth  200
+/auth/garmin/callback https://bkdubocmtzruyojkknch.supabase.co/functions/v1/garmin-oauth  200
+
+# ── Supabase webhook endpoints (optional convenience aliases) ─
+/webhooks/whoop       https://bkdubocmtzruyojkknch.supabase.co/functions/v1/whoop-webhook  200
+/webhooks/stripe      https://bkdubocmtzruyojkknch.supabase.co/functions/v1/stripe-webhook 200

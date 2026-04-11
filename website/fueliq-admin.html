@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Fuel Transform Perform</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg:       #0a0a14;
+      --surface:  #13131f;
+      --surface2: #1a1a2e;
+      --border:   #2a2a44;
+      --primary:  #6c63ff;
+      --green:    #10b981;
+      --amber:    #f59e0b;
+      --red:      #ef4444;
+      --blue:     #3b82f6;
+      --text:     #e2e8f0;
+      --muted:    #64748b;
+      --radius:   12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+    .nav-brand span { color: var(--green); }
+    .admin-badge { background: var(--red)22; border: 1px solid var(--red)44; color: var(--red); font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; }
+    .btn-signout { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
+    .btn-signout:hover { border-color: var(--red); color: var(--red); }
+
+    .page { max-width: 1200px; margin: 0 auto; padding: 32px 20px; }
+
+    /* ── TABS ── */
+    .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 24px; width: fit-content; }
+    .tab { padding: 8px 18px; border-radius: 7px; font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: transparent; transition: all .2s; }
+    .tab.active { background: var(--primary); color: #fff; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── STAT CARDS ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+    .stat-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
+    .stat-val { font-size: 2rem; font-weight: 800; line-height: 1; }
+    .stat-sub { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
+    .stat-card.users   .stat-val { color: var(--primary); }
+    .stat-card.subs    .stat-val { color: var(--green); }
+    .stat-card.revenue .stat-val { color: var(--amber); }
+    .stat-card.open    .stat-val { color: var(--red); }
+
+    /* ── CARD / TABLE ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .card-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+    .badge.active   { background: var(--green)22; color: var(--green); }
+    .badge.trialing { background: var(--blue)22; color: var(--blue); }
+    .badge.canceled { background: var(--red)22; color: var(--red); }
+    .badge.past_due { background: var(--amber)22; color: var(--amber); }
+    .badge.free     { background: var(--muted)22; color: var(--muted); }
+    .badge.open     { background: var(--red)22; color: var(--red); }
+    .badge.resolved { background: var(--green)22; color: var(--green); }
+    .badge.pending  { background: var(--amber)22; color: var(--amber); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    th { text-align: left; color: var(--muted); font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 11px 12px; border-bottom: 1px solid var(--surface2); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--surface2); }
+
+    /* ── FILTERS ── */
+    .filter-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .filter-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; outline: none; }
+    .filter-input:focus { border-color: var(--primary); }
+    select.filter-input option { background: var(--surface2); }
+
+    /* ── INQUIRY REPLY ── */
+    .reply-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all .2s; }
+    .reply-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ── EMPTY / LOADING ── */
+    .empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 32px 0; }
+    #loadingOverlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 200; font-size: 1rem; color: var(--muted); }
+    #accessDenied { display: none; position: fixed; inset: 0; background: var(--bg); align-items: center; justify-content: center; z-index: 200; flex-direction: column; gap: 12px; }
+
+    #toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 10px; font-size: 0.875rem; font-weight: 500; z-index: 999; display: none; }
+    #toast.success { background: var(--green); color: #fff; }
+    #toast.error   { background: var(--red); color: #fff; }
+  </style>
+</head>
+<body>
+
+<div id="loadingOverlay">Loading admin dashboard...</div>
+<div id="accessDenied" style="display:none;flex-direction:column;align-items:center;gap:12px;">
+  <div style="font-size:2rem;">🚫</div>
+  <div style="font-size:1.1rem;font-weight:700;">Access Denied</div>
+  <div style="color:var(--muted);font-size:0.9rem;">Super admin role required.</div>
+  <a href="index.html" style="color:var(--primary);font-size:0.85rem;">← Go Home</a>
+</div>
+
+<nav>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="nav-brand">Fuel<span>Transform</span>Perform</div>
+    <span class="admin-badge">ADMIN</span>
+  </div>
+  <button class="btn-signout" id="btnSignout">Sign Out</button>
+</nav>
+
+<div class="page" id="mainContent" style="display:none;">
+
+  <!-- STAT ROW -->
+  <div class="stat-grid">
+    <div class="stat-card users">
+      <div class="stat-label">Total Athletes</div>
+      <div class="stat-val" id="statUsers">—</div>
+      <div class="stat-sub" id="statUsersNew">loading...</div>
+    </div>
+    <div class="stat-card subs">
+      <div class="stat-label">Active Subscriptions</div>
+      <div class="stat-val" id="statSubs">—</div>
+      <div class="stat-sub" id="statSubsBreakdown">loading...</div>
+    </div>
+    <div class="stat-card revenue">
+      <div class="stat-label">Payments (30 days)</div>
+      <div class="stat-val" id="statRevenue">—</div>
+      <div class="stat-sub" id="statRevenueCount">loading...</div>
+    </div>
+    <div class="stat-card open">
+      <div class="stat-label">Open Inquiries</div>
+      <div class="stat-val" id="statInquiries">—</div>
+      <div class="stat-sub" id="statInquiriesSub">loading...</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('users')">Athletes</button>
+    <button class="tab" onclick="switchTab('subscriptions')">Subscriptions</button>
+    <button class="tab" onclick="switchTab('inquiries')">Inquiries</button>
+    <button class="tab" onclick="switchTab('institutions')">Institutions</button>
+  </div>
+
+  <!-- ── ATHLETES TAB ── -->
+  <div class="tab-panel active" id="tab-users">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Athletes</div>
+      </div>
+      <div class="filter-row">
+        <input class="filter-input" id="userSearch" placeholder="Search name or email..." oninput="filterUsers()" style="flex:1;min-width:200px;" />
+        <select class="filter-input" id="userPlanFilter" onchange="filterUsers()">
+          <option value="">All Plans</option>
+          <option value="free">Free</option>
+          <option value="pro">Pro</option>
+          <option value="elite">Elite</option>
+          <option value="team">Team</option>
+        </select>
+        <select class="filter-input" id="userRoleFilter" onchange="filterUsers()">
+          <option value="">All Roles</option>
+          <option value="athlete">Athlete</option>
+          <option value="coach">Coach</option>
+          <option value="admin">Admin</option>
+          <option value="super_admin">Super Admin</option>
+        </select>
+      </div>
+      <div id="usersTable"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ── SUBSCRIPTIONS TAB ── -->
+  <div class="tab-panel" id="tab-subscriptions">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Subscriptions</div>
+      </div>
+      <div class="filter-row">
+        <select class="filter-input" id="subStatusFilter" onchange="filterSubs()">
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="trialing">Trialing</option>
+          <option value="past_due">Past Due</option>
+          <option value="canceled">Canceled</option>
+        </select>
+      </div>
+      <div id="subsTable"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ── INQUIRIES TAB ── -->
+  <div class="tab-panel" id="tab-inquiries">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Support Inquiries</div>
+      </div>
+      <div class="filter-row">
+        <select class="filter-input" id="inquiryStatusFilter" onchange="filterInquiries()">
+          <option value="">All Statuses</option>
+          <option value="open">Open</option>
+          <option value="pending">Pending</option>
+          <option value="resolved">Resolved</option>
+        </select>
+        <select class="filter-input" id="inquiryPriorityFilter" onchange="filterInquiries()">
+          <option value="">All Priorities</option>
+          <option value="high">High</option>
+          <option value="normal">Normal</option>
+          <option value="low">Low</option>
+        </select>
+      </div>
+      <div id="inquiriesTable"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+  <!-- ── INSTITUTIONS TAB ── -->
+  <div class="tab-panel" id="tab-institutions">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Institutions</div>
+      </div>
+      <div id="institutionsTable"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://bkdubocmtzruyojkknch.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZHVib2NtdHpydXlvamtrbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDE0NDYsImV4cCI6MjA5MDgxNzQ0Nn0.O2JnNrCL_C-VhABKJHilx7EKHrGQ1t8IhMsWxMZFVlQ'
+const { createClient } = supabase
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+let allUsers = [], allSubs = [], allInquiries = [], allInstitutions = []
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast')
+  el.textContent = msg; el.className = type; el.style.display = 'block'
+  setTimeout(() => { el.style.display = 'none' }, 3500)
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const panels = ['users','subscriptions','inquiries','institutions']
+    t.classList.toggle('active', panels[i] === name)
+  })
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
+  document.getElementById(`tab-${name}`).classList.add('active')
+}
+
+// ── STATS ────────────────────────────────────────────────────
+async function loadStats() {
+  const thirtyDaysAgo = new Date(Date.now() - 30*86400000).toISOString()
+  const sevenDaysAgo  = new Date(Date.now() -  7*86400000).toISOString()
+
+  const [
+    { count: totalUsers },
+    { count: newUsers },
+    { count: activeSubs },
+    { data: payments },
+    { count: openInquiries },
+  ] = await Promise.all([
+    sb.from('profiles').select('*', { count: 'exact', head: true }),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+    sb.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+    sb.from('payments').select('amount_cents, status').eq('status', 'paid').gte('paid_at', thirtyDaysAgo),
+    sb.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+  ])
+
+  document.getElementById('statUsers').textContent = totalUsers ?? '—'
+  document.getElementById('statUsersNew').textContent = `+${newUsers ?? 0} this week`
+  document.getElementById('statSubs').textContent = activeSubs ?? '—'
+  document.getElementById('statSubsBreakdown').textContent = 'active subscriptions'
+  const revenue = (payments || []).reduce((sum, p) => sum + (p.amount_cents || 0), 0) / 100
+  document.getElementById('statRevenue').textContent = `$${revenue.toLocaleString('en-US', { minimumFractionDigits: 0 })}`
+  document.getElementById('statRevenueCount').textContent = `from ${(payments||[]).length} payments`
+  document.getElementById('statInquiries').textContent = openInquiries ?? '—'
+  document.getElementById('statInquiriesSub').textContent = 'need response'
+}
+
+// ── USERS ────────────────────────────────────────────────────
+async function loadUsers() {
+  const { data } = await sb.from('profiles')
+    .select('id, full_name, email, sport, role, subscription_plan, institution, created_at')
+    .order('created_at', { ascending: false })
+    .limit(200)
+  allUsers = data || []
+  renderUsers(allUsers)
+}
+
+function renderUsers(users) {
+  const el = document.getElementById('usersTable')
+  if (!users.length) { el.innerHTML = '<div class="empty">No athletes found.</div>'; return }
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>Name</th><th>Email</th><th>Sport</th><th>Role</th><th>Plan</th><th>Institution</th><th>Joined</th>
+    </tr></thead>
+    <tbody>${users.map(u => `<tr>
+      <td>${u.full_name || '—'}</td>
+      <td style="color:var(--muted)">${u.email || '—'}</td>
+      <td>${u.sport || '—'}</td>
+      <td><span class="badge free">${u.role || 'athlete'}</span></td>
+      <td><span class="badge ${u.subscription_plan === 'free' || !u.subscription_plan ? 'free' : 'active'}">${u.subscription_plan || 'free'}</span></td>
+      <td style="color:var(--muted)">${u.institution || '—'}</td>
+      <td style="color:var(--muted)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
+    </tr>`).join('')}</tbody>
+  </table>`
+}
+
+function filterUsers() {
+  const search = document.getElementById('userSearch').value.toLowerCase()
+  const plan   = document.getElementById('userPlanFilter').value
+  const role   = document.getElementById('userRoleFilter').value
+  renderUsers(allUsers.filter(u =>
+    (!search || (u.full_name||'').toLowerCase().includes(search) || (u.email||'').toLowerCase().includes(search)) &&
+    (!plan   || u.subscription_plan === plan) &&
+    (!role   || u.role === role)
+  ))
+}
+
+// ── SUBSCRIPTIONS ─────────────────────────────────────────────
+async function loadSubscriptions() {
+  const { data } = await sb.from('subscriptions')
+    .select('id, status, billing_cycle, current_period_end, cancel_at_period_end, amount_cents, currency, profile_id, profiles(full_name, email)')
+    .order('created_at', { ascending: false })
+    .limit(200)
+  allSubs = data || []
+  renderSubs(allSubs)
+}
+
+function renderSubs(subs) {
+  const el = document.getElementById('subsTable')
+  if (!subs.length) { el.innerHTML = '<div class="empty">No subscriptions found.</div>'; return }
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>Athlete</th><th>Status</th><th>Billing</th><th>Amount</th><th>Period End</th><th>Cancel?</th>
+    </tr></thead>
+    <tbody>${subs.map(s => `<tr>
+      <td>
+        <div>${s.profiles?.full_name || '—'}</div>
+        <div style="color:var(--muted);font-size:0.75rem">${s.profiles?.email || '—'}</div>
+      </td>
+      <td><span class="badge ${s.status}">${s.status}</span></td>
+      <td>${s.billing_cycle || '—'}</td>
+      <td>${s.amount_cents ? '$' + (s.amount_cents / 100).toFixed(2) : '—'}</td>
+      <td style="color:var(--muted)">${s.current_period_end ? new Date(s.current_period_end).toLocaleDateString() : '—'}</td>
+      <td>${s.cancel_at_period_end ? '<span class="badge canceled">Canceling</span>' : '—'}</td>
+    </tr>`).join('')}</tbody>
+  </table>`
+}
+
+function filterSubs() {
+  const status = document.getElementById('subStatusFilter').value
+  renderSubs(allSubs.filter(s => !status || s.status === status))
+}
+
+// ── INQUIRIES ────────────────────────────────────────────────
+async function loadInquiries() {
+  const { data } = await sb.from('inquiries')
+    .select('id, name, email, subject, category, priority, status, created_at')
+    .order('created_at', { ascending: false })
+    .limit(100)
+  allInquiries = data || []
+  renderInquiries(allInquiries)
+}
+
+function renderInquiries(inquiries) {
+  const el = document.getElementById('inquiriesTable')
+  if (!inquiries.length) { el.innerHTML = '<div class="empty">No inquiries found.</div>'; return }
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>From</th><th>Subject</th><th>Category</th><th>Priority</th><th>Status</th><th>Date</th><th></th>
+    </tr></thead>
+    <tbody>${inquiries.map(i => `<tr>
+      <td>
+        <div>${i.name || '—'}</div>
+        <div style="color:var(--muted);font-size:0.75rem">${i.email || '—'}</div>
+      </td>
+      <td>${i.subject || '—'}</td>
+      <td style="color:var(--muted)">${i.category || '—'}</td>
+      <td><span class="badge ${i.priority === 'high' ? 'open' : 'free'}">${i.priority || 'normal'}</span></td>
+      <td><span class="badge ${i.status || 'open'}">${i.status || 'open'}</span></td>
+      <td style="color:var(--muted)">${i.created_at ? new Date(i.created_at).toLocaleDateString() : '—'}</td>
+      <td>
+        ${i.status !== 'resolved'
+          ? `<button class="reply-btn" onclick="resolveInquiry('${i.id}')">Resolve</button>`
+          : ''}
+      </td>
+    </tr>`).join('')}</tbody>
+  </table>`
+}
+
+function filterInquiries() {
+  const status   = document.getElementById('inquiryStatusFilter').value
+  const priority = document.getElementById('inquiryPriorityFilter').value
+  renderInquiries(allInquiries.filter(i =>
+    (!status   || i.status === status) &&
+    (!priority || i.priority === priority)
+  ))
+}
+
+async function resolveInquiry(id) {
+  const { error } = await sb.from('inquiries').update({ status: 'resolved', resolved_at: new Date().toISOString() }).eq('id', id)
+  if (error) return toast('Failed to resolve inquiry.', 'error')
+  toast('Inquiry marked as resolved.')
+  allInquiries = allInquiries.map(i => i.id === id ? { ...i, status: 'resolved' } : i)
+  filterInquiries()
+  loadStats()
+}
+
+// ── INSTITUTIONS ──────────────────────────────────────────────
+async function loadInstitutions() {
+  const { data } = await sb.from('institutions')
+    .select('id, name, short_name, ncaa_division, city, state, license_type, license_seats, license_used, created_at')
+    .order('name')
+  allInstitutions = data || []
+  renderInstitutions(allInstitutions)
+}
+
+function renderInstitutions(institutions) {
+  const el = document.getElementById('institutionsTable')
+  if (!institutions.length) { el.innerHTML = '<div class="empty">No institutions found.</div>'; return }
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>Institution</th><th>Division</th><th>Location</th><th>License</th><th>Seats Used</th><th>Joined</th>
+    </tr></thead>
+    <tbody>${institutions.map(i => `<tr>
+      <td>
+        <div>${i.name}</div>
+        ${i.short_name ? `<div style="color:var(--muted);font-size:0.75rem">${i.short_name}</div>` : ''}
+      </td>
+      <td><span class="badge free">${i.ncaa_division || '—'}</span></td>
+      <td style="color:var(--muted)">${[i.city, i.state].filter(Boolean).join(', ') || '—'}</td>
+      <td>${i.license_type || '—'}</td>
+      <td>
+        <span style="color:${(i.license_used||0) >= (i.license_seats||0) ? 'var(--red)' : 'var(--green)'}">
+          ${i.license_used || 0} / ${i.license_seats || 0}
+        </span>
+      </td>
+      <td style="color:var(--muted)">${i.created_at ? new Date(i.created_at).toLocaleDateString() : '—'}</td>
+    </tr>`).join('')}</tbody>
+  </table>`
+}
+
+// ── SIGN OUT ─────────────────────────────────────────────────
+document.getElementById('btnSignout').addEventListener('click', async () => {
+  await sb.auth.signOut()
+  window.location.href = 'index.html'
+})
+
+// ── INIT ─────────────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession()
+  if (!session) { window.location.href = 'index.html?auth=required'; return }
+
+  // Verify super_admin role
+  const { data: profile } = await sb.from('profiles')
+    .select('role').eq('id', session.user.id).single()
+
+  document.getElementById('loadingOverlay').style.display = 'none'
+
+  if (!profile || profile.role !== 'super_admin') {
+    document.getElementById('accessDenied').style.display = 'flex'
+    return
+  }
+
+  document.getElementById('mainContent').style.display = 'block'
+
+  // Load all data in parallel
+  await Promise.all([
+    loadStats(),
+    loadUsers(),
+    loadSubscriptions(),
+    loadInquiries(),
+    loadInstitutions(),
+  ])
+}
+
+init()
+</script>
+</body>
+</html>

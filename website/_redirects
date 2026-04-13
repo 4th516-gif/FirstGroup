@@ -9,3 +9,4 @@
 # ── Supabase webhook endpoints (optional convenience aliases) ─
 /webhooks/whoop       https://bkdubocmtzruyojkknch.supabase.co/functions/v1/whoop-webhook  200
 /webhooks/stripe      https://bkdubocmtzruyojkknch.supabase.co/functions/v1/stripe-webhook 200
+/functions/create-checkout-session  https://bkdubocmtzruyojkknch.supabase.co/functions/v1/create-checkout-session  200

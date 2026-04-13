@@ -111,6 +111,7 @@
     .filter-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; outline: none; }
     .filter-input:focus { border-color: var(--primary); }
     select.filter-input option { background: var(--surface2); }
+    select.inst-select { max-width: 200px; font-size: 0.78rem; padding: 5px 8px; }
 
     /* ── INQUIRY REPLY ── */
     .reply-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all .2s; }
@@ -352,7 +353,7 @@ async function loadStats() {
 // ── USERS ────────────────────────────────────────────────────
 async function loadUsers() {
   const { data } = await sb.from('profiles')
-    .select('id, full_name, email, sport, role, subscription_plan, institution, created_at')
+    .select('id, full_name, email, sport, role, subscription_plan, institution, institution_id, created_at')
     .order('created_at', { ascending: false })
     .limit(200)
   allUsers = data || []
@@ -364,18 +365,48 @@ function renderUsers(users) {
   if (!users.length) { el.innerHTML = '<div class="empty">No athletes found.</div>'; return }
   el.innerHTML = `<table>
     <thead><tr>
-      <th>Name</th><th>Email</th><th>Sport</th><th>Role</th><th>Plan</th><th>Institution</th><th>Joined</th>
+      <th>Name</th><th>Email</th><th>Sport</th><th>Role</th><th>Plan</th><th>Organization (license)</th><th>Joined</th>
     </tr></thead>
-    <tbody>${users.map(u => `<tr>
+    <tbody>${users.map(u => {
+      const instOpts = (allInstitutions || []).map((i) =>
+        `<option value="${i.id}" ${u.institution_id === i.id ? 'selected' : ''}>${(i.name || '').replace(/</g, '&lt;')}</option>`
+      ).join('')
+      return `<tr>
       <td>${u.full_name || '—'}</td>
       <td style="color:var(--muted)">${u.email || '—'}</td>
       <td>${u.sport || '—'}</td>
       <td><span class="badge free">${u.role || 'athlete'}</span></td>
       <td><span class="badge ${u.subscription_plan === 'free' || !u.subscription_plan ? 'free' : 'active'}">${u.subscription_plan || 'free'}</span></td>
-      <td style="color:var(--muted)">${u.institution || '—'}</td>
+      <td>
+        <select class="filter-input inst-select" onchange="assignUserInstitution('${u.id}', this.value)">
+          <option value="">— None —</option>${instOpts}
+        </select>
+      </td>
       <td style="color:var(--muted)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
-    </tr>`).join('')}</tbody>
+    </tr>`
+    }).join('')}</tbody>
   </table>`
+}
+
+window.assignUserInstitution = async function assignUserInstitution(userId, institutionId) {
+  const inst = institutionId ? allInstitutions.find((i) => i.id === institutionId) : null
+  const { error } = await sb.from('profiles').update({
+    institution_id: institutionId || null,
+    institution: inst ? inst.name : null,
+    updated_at: new Date().toISOString(),
+  }).eq('id', userId)
+  if (error) {
+    toast(error.message || 'Update failed', 'error')
+    return
+  }
+  toast('Organization updated. Seat counts refresh automatically.')
+  allUsers = allUsers.map((u) =>
+    u.id === userId
+      ? { ...u, institution_id: institutionId || null, institution: inst ? inst.name : null }
+      : u
+  )
+  await loadInstitutions()
+  filterUsers()
 }
 
 function filterUsers() {
@@ -568,13 +599,12 @@ async function init() {
 
   document.getElementById('mainContent').style.display = 'block'
 
-  // Load all data in parallel
+  await loadInstitutions()
   await Promise.all([
     loadStats(),
     loadUsers(),
     loadSubscriptions(),
     loadInquiries(),
-    loadInstitutions(),
     loadAudit(),
   ])
 }

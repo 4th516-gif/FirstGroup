@@ -244,7 +244,7 @@
         <!-- Seat holder (license / org) -->
         <section class="panel hidden" id="panel-seat">
           <h2>Seat holder · License &amp; organization</h2>
-          <p class="muted" style="margin-bottom:14px;">For programs that purchased team or institutional access. Seat usage and roster tools will expand after PoC.</p>
+          <p class="muted" style="margin-bottom:14px;">For programs that purchased team or institutional access. Seat usage updates when profiles are linked to an organization in the platform console.</p>
           <div id="seatOrgBlock" class="muted">Loading organization…</div>
           <div class="bar-row hidden" id="seatBarWrap">
             <div class="bar-label"><span>Seats in use</span><span id="seatBarLabel">—</span></div>
@@ -359,7 +359,7 @@ async function loadSeatOrg(profile) {
   const barWrap = document.getElementById('seatBarWrap')
   if (!profile.institution_id) {
     block.textContent =
-      'No organization is linked to this profile yet. After PoC, institution licenses will appear here with seat counts and roster controls.'
+      'No organization is linked to this profile yet. A platform owner can assign one from Admin → Athletes → Organization.'
     show(barWrap, false)
     return
   }

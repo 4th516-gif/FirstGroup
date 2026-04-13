@@ -142,6 +142,35 @@
     .btn-upgrade:hover { transform: translateY(-1px); }
     .btn-upgrade:disabled { opacity: .55; cursor: not-allowed; transform: none; }
 
+    .alert-stack { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+    .alert-item {
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.84rem;
+      line-height: 1.4;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+    }
+    .alert-item.warn { border-color: color-mix(in srgb, var(--amber) 45%, var(--border)); background: color-mix(in srgb, var(--amber) 10%, var(--surface2)); }
+    .alert-item.info { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
+    .alert-item strong { display: block; margin-bottom: 4px; font-size: 0.88rem; }
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-row label { color: var(--muted); flex: 1; }
+    .switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; inset: 0;
+      background: var(--border); border-radius: 999px;
+      transition: background .2s;
+    }
+    .slider:before {
+      position: absolute; content: ''; height: 18px; width: 18px; left: 3px; bottom: 3px;
+      background: var(--text); border-radius: 50%; transition: transform .2s;
+    }
+    .switch input:checked + .slider { background: var(--green); }
+    .switch input:checked + .slider:before { transform: translateX(20px); }
+
     @media (prefers-reduced-motion: reduce) {
       .card:hover, .btn-connect:hover, .btn-signout:hover, .nav-links a:hover { transform: none; }
     }
@@ -266,6 +295,25 @@
           </div>
           <div class="progress-bar"><div class="progress-fill" id="proteinBar" style="width:0%;background:var(--primary)"></div></div>
         </div>
+
+        <div id="nutritionAlerts" class="alert-stack" style="margin-top:18px;" aria-live="polite"></div>
+
+        <div style="margin-top:8px;padding-top:14px;border-top:1px solid var(--border);">
+          <div class="card-title" style="margin-bottom:10px;">Nutrition alerts</div>
+          <p class="empty" style="padding:0 0 10px;text-align:left;">In-app guidance for demo (push/email later). Uses your timezone and today&apos;s logs.</p>
+          <div class="toggle-row">
+            <label for="togProtein">Protein below target</label>
+            <label class="switch"><input type="checkbox" id="togProtein" checked /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label for="togCal">Calories behind (after 5pm)</label>
+            <label class="switch"><input type="checkbox" id="togCal" checked /><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <label for="togMeal">Remind to log meals</label>
+            <label class="switch"><input type="checkbox" id="togMeal" checked /><span class="slider"></span></label>
+          </div>
+        </div>
       </div>
 
       <!-- Recent Wearable Activity -->
@@ -288,7 +336,9 @@
 
 <div id="toast"></div>
 
-<script>
+<script type="module">
+import { getLocalHour, computeNutritionAlerts, DEFAULT_NUTRITION_ALERT_PREFS } from './js/nutrition-alerts.mjs'
+
 ;(function initTheme() {
   const root = document.documentElement
   root.dataset.theme = localStorage.getItem('sb-theme') || 'dark'
@@ -314,6 +364,8 @@ const { createClient } = supabase
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
 let athleteId = null
+let profileTimezone = 'America/New_York'
+let lastNutritionContext = { summary: null, targets: null, logCount: 0 }
 
 // ── TOAST ───────────────────────────────────────────────────
 function toast(msg, type = 'success') {
@@ -399,6 +451,8 @@ async function loadProfile(uid) {
   const { data } = await sb.from('profiles').select('*').eq('id', uid).single()
   if (!data) return
 
+  profileTimezone = data.timezone || 'America/New_York'
+
   const initials = (data.full_name || data.email || '?').charAt(0).toUpperCase()
   document.getElementById('avatarInitial').textContent = initials
   document.getElementById('profileName').textContent = data.full_name || data.email
@@ -413,8 +467,16 @@ async function loadProfile(uid) {
     upgradePanel.style.display = planKey === 'free' ? 'block' : 'none'
   }
 
+  let orgLabel = data.institution || '—'
+  if (data.institution_id) {
+    const { data: org } = await sb.from('institutions').select('name, short_name').eq('id', data.institution_id).maybeSingle()
+    if (org?.name) {
+      orgLabel = org.short_name ? `${org.name} (${org.short_name})` : org.name
+    }
+  }
+
   const meta = [
-    ['Institution', data.institution || '—'],
+    ['Organization', orgLabel],
     ['Division', data.ncaa_division || '—'],
     ['Season Phase', data.season_phase || '—'],
     ['Grad Year', data.grad_year || '—'],
@@ -423,6 +485,8 @@ async function loadProfile(uid) {
   document.getElementById('profileMeta').innerHTML = meta.map(([k, v]) =>
     `<div class="meta-row"><span>${k}</span><span>${v}</span></div>`
   ).join('')
+
+  applyNotificationPrefsToUI(data.notification_prefs)
 }
 
 // ── LOAD WEARABLE STATUS ──────────────────────────────────────
@@ -463,18 +527,71 @@ async function disconnectDevice(uid, type) {
   loadWearables(uid)
 }
 
+function applyNotificationPrefsToUI(np) {
+  const merged = { ...DEFAULT_NUTRITION_ALERT_PREFS, ...(np || {}) }
+  const q = (id) => document.getElementById(id)
+  if (q('togProtein')) q('togProtein').checked = merged.nutrition_protein_low !== false
+  if (q('togCal')) q('togCal').checked = merged.nutrition_calories_low !== false
+  if (q('togMeal')) q('togMeal').checked = merged.meal_logging_reminder !== false
+}
+
+function readNutritionAlertPrefsFromUI() {
+  return {
+    nutrition_protein_low: document.getElementById('togProtein').checked,
+    nutrition_calories_low: document.getElementById('togCal').checked,
+    meal_logging_reminder: document.getElementById('togMeal').checked,
+  }
+}
+
+async function persistNutritionAlertPrefs() {
+  if (!athleteId) return
+  const { data: cur } = await sb.from('profiles').select('notification_prefs').eq('id', athleteId).single()
+  const next = { ...(cur?.notification_prefs || {}), ...readNutritionAlertPrefsFromUI() }
+  const { error } = await sb.from('profiles').update({ notification_prefs: next }).eq('id', athleteId)
+  if (error) return toast('Could not save alert settings.', 'error')
+  toast('Alert settings saved.')
+}
+
+function refreshNutritionAlerts() {
+  const { summary, targets, logCount } = lastNutritionContext
+  const prefs = readNutritionAlertPrefsFromUI()
+  const hour = getLocalHour(profileTimezone)
+  const alerts = computeNutritionAlerts({
+    summary,
+    targets,
+    foodLogCount: logCount,
+    localHour: hour,
+    prefs,
+  })
+  const host = document.getElementById('nutritionAlerts')
+  if (!host) return
+  if (!alerts.length) {
+    host.innerHTML = '<div class="empty" style="padding:8px 0;text-align:left">No nutrition alerts right now.</div>'
+    return
+  }
+  host.innerHTML = alerts.map((a) =>
+    `<div class="alert-item ${a.level}" role="status"><strong>${a.title}</strong>${a.message}</div>`
+  ).join('')
+}
+
 // ── LOAD TODAY'S NUTRITION ────────────────────────────────────
 async function loadNutrition(uid) {
   const today = new Date().toISOString().split('T')[0]
-  const { data: summary } = await sb.from('daily_summaries')
-    .select('*').eq('athlete_id', uid).eq('summary_date', today).single()
-
-  const { data: targets } = await sb.from('nutrition_targets')
-    .select('calories_kcal, protein_g')
-    .eq('athlete_id', uid)
-    .lte('effective_from', today)
-    .order('effective_from', { ascending: false })
-    .limit(1).single()
+  const [
+    { data: summary },
+    { data: targets },
+    { count: logCount },
+  ] = await Promise.all([
+    sb.from('daily_summaries').select('*').eq('athlete_id', uid).eq('summary_date', today).maybeSingle(),
+    sb.from('nutrition_targets')
+      .select('calories_kcal, protein_g')
+      .eq('athlete_id', uid)
+      .lte('effective_from', today)
+      .order('effective_from', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    sb.from('food_logs').select('id', { count: 'exact', head: true }).eq('athlete_id', uid).eq('logged_date', today),
+  ])
 
   if (summary) {
     document.getElementById('macroCalories').textContent = Math.round(summary.total_calories || 0)
@@ -495,6 +612,13 @@ async function loadNutrition(uid) {
       document.getElementById(id).textContent = '0'
     })
   }
+
+  lastNutritionContext = {
+    summary: summary || { total_calories: 0, total_protein_g: 0 },
+    targets: targets || null,
+    logCount: logCount ?? 0,
+  }
+  refreshNutritionAlerts()
 }
 
 // ── LOAD RECENT ACTIVITY ──────────────────────────────────────
@@ -597,9 +721,8 @@ async function init() {
 
   athleteId = session.user.id
 
-  // Load all sections in parallel
+  await loadProfile(athleteId)
   await Promise.all([
-    loadProfile(athleteId),
     loadWearables(athleteId),
     loadNutrition(athleteId),
     loadActivity(athleteId),
@@ -609,6 +732,13 @@ async function init() {
 }
 
 document.getElementById('btnUpgradeMonthly')?.addEventListener('click', () => startCheckout('monthly'))
+
+;['togProtein', 'togCal', 'togMeal'].forEach((id) => {
+  document.getElementById(id)?.addEventListener('change', () => {
+    refreshNutritionAlerts()
+    persistNutritionAlertPrefs()
+  })
+})
 
 init()
 </script>

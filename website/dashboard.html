@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Stonebound Performance</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #06080f;
+      --surface: #0f1424;
+      --surface2: #171f36;
+      --border: #2a3557;
+      --text: #e8ecf7;
+      --muted: #8f9ab8;
+      --primary: #6d7cff;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --radius: 14px;
+      --gradient: linear-gradient(135deg, #6d7cff 0%, #10b981 100%);
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f5f7ff;
+      --surface: #ffffff;
+      --surface2: #eef3ff;
+      --border: #d4def5;
+      --primary: #4e5df3;
+      --green: #0f9a70;
+      --amber: #d97706;
+      --red: #dc2626;
+      --blue: #2563eb;
+      --text: #10162b;
+      --muted: #5f6e91;
+      --gradient: linear-gradient(135deg, #4e5df3 0%, #0f9a70 100%);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background:
+        radial-gradient(circle at 85% 0%, rgba(109,124,255,.14), transparent 42%),
+        radial-gradient(circle at 12% 100%, rgba(16,185,129,.12), transparent 48%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      min-height: 100vh;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 22px;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .nav-brand { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+    .nav-brand span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .nav-meta { font-size: 0.78rem; color: var(--muted); }
+    .seat-pill {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+    }
+    .seat-pill.owner { border-color: var(--red); color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+    .seat-pill.seat { border-color: var(--blue); color: var(--blue); background: color-mix(in srgb, var(--blue) 12%, transparent); }
+    .seat-pill.user { border-color: var(--green); color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      padding: 7px 12px;
+      border-radius: 9px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color .15s, transform .15s;
+    }
+    .btn:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .btn.primary { background: var(--gradient); border-color: transparent; color: #fff; }
+    .btn.ghost { background: transparent; }
+
+    .page { max-width: 1100px; margin: 0 auto; padding: 28px 20px 48px; }
+
+    .welcome {
+      margin-bottom: 22px;
+    }
+    .welcome h1 { font-size: clamp(1.25rem, 3vw, 1.75rem); letter-spacing: -0.03em; margin-bottom: 6px; }
+    .welcome p { color: var(--muted); font-size: 0.92rem; max-width: 62ch; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 22px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 18px;
+      transition: border-color .2s;
+    }
+    .panel:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
+    .panel h2 {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .stat {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .stat .v { font-size: 1.5rem; font-weight: 800; }
+    .stat .l { font-size: 0.7rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+    .link-grid { display: flex; flex-direction: column; gap: 10px; }
+    .link-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text);
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: border-color .15s, transform .15s;
+    }
+    .link-row:hover { border-color: var(--primary); transform: translateX(2px); }
+    .link-row span.hint { font-size: 0.75rem; font-weight: 500; color: var(--muted); }
+
+    .muted { color: var(--muted); font-size: 0.86rem; line-height: 1.45; }
+    .hidden { display: none !important; }
+
+    .bar-row { margin-top: 10px; }
+    .bar-label { display: flex; justify-content: space-between; font-size: 0.74rem; color: var(--muted); margin-bottom: 4px; }
+    .bar { background: var(--surface2); border-radius: 999px; height: 8px; overflow: hidden; }
+    .bar > i { display: block; height: 100%; border-radius: 999px; background: var(--gradient); width: var(--w, 0%); }
+
+    #loading {
+      min-height: 50vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .btn:hover, .link-row:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading">Loading your dashboard…</div>
+
+<div id="app" class="hidden">
+  <nav>
+    <div class="nav-left">
+      <div>
+        <div class="nav-brand">Stonebound <span>Performance</span></div>
+        <div class="nav-meta">Universal dashboard · PoC</div>
+      </div>
+      <span class="seat-pill user" id="seatPill">User</span>
+    </div>
+    <div class="nav-actions">
+      <a class="btn ghost" href="index.html">Site</a>
+      <button type="button" class="btn" id="btnTheme">Theme</button>
+      <button type="button" class="btn" id="btnSignOut">Sign out</button>
+    </div>
+  </nav>
+
+  <div class="page">
+    <header class="welcome">
+      <h1 id="headline">Welcome</h1>
+      <p id="subhead">Loading your workspace…</p>
+    </header>
+
+    <div class="layout">
+      <div class="main-col">
+
+        <!-- Owner (platform) -->
+        <section class="panel hidden" id="panel-owner">
+          <h2>Owner · Platform operations</h2>
+          <p class="muted" style="margin-bottom:14px;">Full visibility across athletes, billing, and system activity. Use this view for PoC walkthroughs and investor demos.</p>
+          <div class="stat-grid" id="ownerStats">
+            <div class="stat"><div class="v" id="oUsers">—</div><div class="l">Athletes</div></div>
+            <div class="stat"><div class="v" id="oSubs">—</div><div class="l">Active subs</div></div>
+            <div class="stat"><div class="v" id="oRev">—</div><div class="l">30d revenue</div></div>
+            <div class="stat"><div class="v" id="oOpen">—</div><div class="l">Open inquiries</div></div>
+          </div>
+          <div class="link-grid" style="margin-top:16px;">
+            <a class="link-row" href="fueliq-admin.html">Open platform console <span class="hint">Tables, Stripe sync, audit log</span></a>
+          </div>
+        </section>
+
+        <!-- Seat holder (license / org) -->
+        <section class="panel hidden" id="panel-seat">
+          <h2>Seat holder · License &amp; organization</h2>
+          <p class="muted" style="margin-bottom:14px;">For programs that purchased team or institutional access. Seat usage updates when profiles are linked to an organization in the platform console.</p>
+          <div id="seatOrgBlock" class="muted">Loading organization…</div>
+          <div class="bar-row hidden" id="seatBarWrap">
+            <div class="bar-label"><span>Seats in use</span><span id="seatBarLabel">—</span></div>
+            <div class="bar"><i id="seatBarFill" style="--w:0%"></i></div>
+          </div>
+          <div class="link-grid" style="margin-top:16px;">
+            <a class="link-row" href="fueliq-athlete-profile.html">My athlete hub <span class="hint">Wearables &amp; nutrition PoC</span></a>
+          </div>
+        </section>
+
+        <!-- User (athlete / member) -->
+        <section class="panel hidden" id="panel-user">
+          <h2>Your performance workspace</h2>
+          <p class="muted" style="margin-bottom:14px;">Connect wearables, track fueling targets, and review recovery signals in one place.</p>
+          <div class="link-grid">
+            <a class="link-row primary" href="fueliq-athlete-profile.html">Open my athlete hub <span class="hint">Main PoC experience</span></a>
+            <a class="link-row" href="index.html">Back to Stonebound Performance site <span class="hint">Marketing &amp; sign-in</span></a>
+          </div>
+        </section>
+
+      </div>
+
+      <aside class="side-col">
+        <div class="panel">
+          <h2>Quick links</h2>
+          <div class="link-grid">
+            <a class="link-row" href="index.html">Home</a>
+            <a class="link-row" href="fueliq-athlete-profile.html" id="sideAthlete">Athlete hub</a>
+            <a class="link-row hidden" href="fueliq-admin.html" id="sideAdmin">Platform console</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>PoC recording</h2>
+          <p class="muted">Use this page as the single entry after sign-in, then branch by seat type for your screen recording narrative.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://bkdubocmtzruyojkknch.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZHVib2NtdHpydXlvamtrbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDE0NDYsImV4cCI6MjA5MDgxNzQ0Nn0.O2JnNrCL_C-VhABKJHilx7EKHrGQ1t8IhMsWxMZFVlQ'
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+function show(el, on) {
+  el.classList.toggle('hidden', !on)
+}
+
+;(function theme() {
+  const root = document.documentElement
+  root.dataset.theme = localStorage.getItem('sb-theme') || 'dark'
+  document.getElementById('btnTheme').addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
+    root.dataset.theme = next
+    localStorage.setItem('sb-theme', next)
+  })
+})()
+
+document.getElementById('btnSignOut').addEventListener('click', async () => {
+  await sb.auth.signOut()
+  window.location.href = 'index.html'
+})
+
+function setSeatPill(kind) {
+  const el = document.getElementById('seatPill')
+  el.classList.remove('owner', 'seat', 'user')
+  if (kind === 'owner') {
+    el.textContent = 'Owner'
+    el.classList.add('owner')
+  } else if (kind === 'seat') {
+    el.textContent = 'Seat holder'
+    el.classList.add('seat')
+  } else {
+    el.textContent = 'User'
+    el.classList.add('user')
+  }
+}
+
+async function loadOwnerStats() {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toISOString()
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString()
+  try {
+    const [
+      { count: totalUsers },
+      { count: newUsers },
+      { count: activeSubs },
+      { data: payments },
+      { count: openInquiries },
+    ] = await Promise.all([
+      sb.from('profiles').select('*', { count: 'exact', head: true }),
+      sb.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
+      sb.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+      sb.from('payments').select('amount_cents, status').in('status', ['paid', 'succeeded']).gte('paid_at', thirtyDaysAgo),
+      sb.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+    ])
+    document.getElementById('oUsers').textContent = totalUsers ?? '—'
+    document.getElementById('oSubs').textContent = activeSubs ?? '—'
+    const revenue = (payments || []).reduce((s, p) => s + (p.amount_cents || 0), 0) / 100
+    document.getElementById('oRev').textContent = `$${revenue.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+    document.getElementById('oOpen').textContent = openInquiries ?? '—'
+    document.querySelector('#ownerStats .stat:nth-child(1) .l').textContent =
+      `Athletes · +${newUsers ?? 0} wk`
+  } catch (_) {
+    document.getElementById('oUsers').textContent = '—'
+  }
+}
+
+async function loadSeatOrg(profile) {
+  const block = document.getElementById('seatOrgBlock')
+  const barWrap = document.getElementById('seatBarWrap')
+  if (!profile.institution_id) {
+    block.textContent =
+      'No organization is linked to this profile yet. A platform owner can assign one from Admin → Athletes → Organization.'
+    show(barWrap, false)
+    return
+  }
+  const { data: org, error } = await sb
+    .from('institutions')
+    .select('name, short_name, license_type, license_seats, license_used')
+    .eq('id', profile.institution_id)
+    .maybeSingle()
+
+  if (error || !org) {
+    block.textContent = 'Organization details will appear here when your license is linked in the database.'
+    show(barWrap, false)
+    return
+  }
+
+  block.innerHTML = `<strong style="color:var(--text)">${org.name}</strong>${
+    org.short_name ? ` <span style="color:var(--muted)">(${org.short_name})</span>` : ''
+  }<br/><span style="font-size:0.82rem">License: ${org.license_type || '—'}</span>`
+
+  const seats = org.license_seats || 0
+  const used = org.license_used || 0
+  if (seats > 0) {
+    const pct = Math.min(100, Math.round((used / seats) * 100))
+    document.getElementById('seatBarLabel').textContent = `${used} / ${seats}`
+    document.getElementById('seatBarFill').style.setProperty('--w', `${pct}%`)
+    show(barWrap, true)
+  } else {
+    show(barWrap, false)
+  }
+}
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession()
+  if (!session) {
+    window.location.href = 'index.html?auth=required'
+    return
+  }
+
+  const { data: profile, error } = await sb
+    .from('profiles')
+    .select('id, full_name, email, role, subscription_plan, institution_id, institution, sport')
+    .eq('id', session.user.id)
+    .single()
+
+  if (error || !profile) {
+    document.getElementById('loading').textContent = 'Could not load your profile.'
+    return
+  }
+
+  const first = (profile.full_name || profile.email || 'Member').split(' ')[0]
+  const role = profile.role || 'athlete'
+  const plan = (profile.subscription_plan || 'free').toLowerCase()
+
+  const isOwner = role === 'super_admin' || role === 'admin'
+  const isSeatHolder =
+    !isOwner &&
+    (role === 'coach' || plan === 'team' || plan === 'institutional')
+
+  document.getElementById('loading').classList.add('hidden')
+  document.getElementById('app').classList.remove('hidden')
+
+  document.getElementById('headline').textContent = `Welcome, ${first}`
+
+  if (isOwner) {
+    setSeatPill('owner')
+    document.getElementById('subhead').textContent =
+      'Owner view: platform health, revenue signals, and the full console. Switch to your athlete hub anytime for the member experience.'
+    show(document.getElementById('panel-owner'), true)
+    show(document.getElementById('panel-user'), true)
+    show(document.getElementById('sideAdmin'), true)
+    await loadOwnerStats()
+  } else if (isSeatHolder) {
+    setSeatPill('seat')
+    document.getElementById('subhead').textContent =
+      'Seat holder view: organization license snapshot plus quick access to your own athlete tools.'
+    show(document.getElementById('panel-seat'), true)
+    show(document.getElementById('panel-user'), true)
+    await loadSeatOrg(profile)
+  } else {
+    setSeatPill('user')
+    const sport = profile.sport ? ` · ${profile.sport}` : ''
+    document.getElementById('subhead').textContent =
+      `User view: your training and nutrition hub${sport}. Upgrade or connect devices from the athlete profile.`
+    show(document.getElementById('panel-user'), true)
+  }
+
+  if (!isOwner) {
+    show(document.getElementById('sideAdmin'), false)
+  }
+}
+
+init()
+</script>
+</body>
+</html>

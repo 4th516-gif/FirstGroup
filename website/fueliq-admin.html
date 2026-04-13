@@ -3,46 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard — Fuel Transform Perform</title>
+  <title>Admin Dashboard — Stonebound Performance</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg:       #0a0a14;
-      --surface:  #13131f;
-      --surface2: #1a1a2e;
-      --border:   #2a2a44;
-      --primary:  #6c63ff;
+      color-scheme: dark;
+      --bg:       #06080f;
+      --surface:  #0f1424;
+      --surface2: #171f36;
+      --border:   #2a3557;
+      --primary:  #6d7cff;
       --green:    #10b981;
       --amber:    #f59e0b;
       --red:      #ef4444;
       --blue:     #3b82f6;
-      --text:     #e2e8f0;
-      --muted:    #64748b;
+      --text:     #e8ecf7;
+      --muted:    #8f9ab8;
       --radius:   12px;
+      --gradient: linear-gradient(135deg, #6d7cff 0%, #10b981 100%);
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg:       #f5f7ff;
+      --surface:  #ffffff;
+      --surface2: #eef3ff;
+      --border:   #d4def5;
+      --primary:  #4e5df3;
+      --green:    #0f9a70;
+      --amber:    #d97706;
+      --red:      #dc2626;
+      --blue:     #2563eb;
+      --text:     #10162b;
+      --muted:    #5f6e91;
+      --gradient: linear-gradient(135deg, #4e5df3 0%, #0f9a70 100%);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+    body {
+      background:
+        radial-gradient(circle at 85% 0%, rgba(109,124,255,.14), transparent 42%),
+        radial-gradient(circle at 12% 100%, rgba(16,185,129,.12), transparent 48%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      min-height: 100vh;
+    }
 
     nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
-    .nav-brand span { color: var(--green); }
+    .nav-brand { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+    .nav-brand span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
     .admin-badge { background: var(--red)22; border: 1px solid var(--red)44; color: var(--red); font-size: 0.7rem; font-weight: 700; padding: 3px 8px; border-radius: 20px; letter-spacing: 1px; }
-    .btn-signout { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
-    .btn-signout:hover { border-color: var(--red); color: var(--red); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .btn-theme { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: border-color .2s, color .2s, transform .15s; }
+    .btn-theme:hover { border-color: var(--primary); color: var(--text); transform: translateY(-1px); }
+    .btn-signout { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: border-color .2s, color .2s, transform .15s; }
+    .btn-signout:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
 
     .page { max-width: 1200px; margin: 0 auto; padding: 32px 20px; }
 
     /* ── TABS ── */
     .tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 24px; width: fit-content; }
     .tab { padding: 8px 18px; border-radius: 7px; font-size: 0.85rem; font-weight: 500; cursor: pointer; color: var(--muted); border: none; background: transparent; transition: all .2s; }
-    .tab.active { background: var(--primary); color: #fff; }
+    .tab.active { background: var(--gradient); color: #fff; border: none; }
     .tab-panel { display: none; }
     .tab-panel.active { display: block; }
 
     /* ── STAT CARDS ── */
     .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
     @media (max-width: 900px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: border-color .2s, transform .2s; }
+    .stat-card:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); transform: translateY(-2px); }
     .stat-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 8px; }
     .stat-val { font-size: 2rem; font-weight: 800; line-height: 1; }
     .stat-sub { font-size: 0.75rem; color: var(--muted); margin-top: 6px; }
@@ -52,7 +86,8 @@
     .stat-card.open    .stat-val { color: var(--red); }
 
     /* ── CARD / TABLE ── */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; transition: border-color .2s; }
+    .card:hover { border-color: color-mix(in srgb, var(--primary) 35%, var(--border)); }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .card-title { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
     .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
@@ -76,6 +111,7 @@
     .filter-input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 8px; font-size: 0.82rem; outline: none; }
     .filter-input:focus { border-color: var(--primary); }
     select.filter-input option { background: var(--surface2); }
+    select.inst-select { max-width: 200px; font-size: 0.78rem; padding: 5px 8px; }
 
     /* ── INQUIRY REPLY ── */
     .reply-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; transition: all .2s; }
@@ -89,6 +125,10 @@
     #toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 10px; font-size: 0.875rem; font-weight: 500; z-index: 999; display: none; }
     #toast.success { background: var(--green); color: #fff; }
     #toast.error   { background: var(--red); color: #fff; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .stat-card:hover, .btn-signout:hover, .btn-theme:hover { transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -98,15 +138,19 @@
   <div style="font-size:2rem;">🚫</div>
   <div style="font-size:1.1rem;font-weight:700;">Access Denied</div>
   <div style="color:var(--muted);font-size:0.9rem;">Super admin role required.</div>
-  <a href="index.html" style="color:var(--primary);font-size:0.85rem;">← Go Home</a>
+  <a href="dashboard.html" style="color:var(--primary);font-size:0.85rem;">← Dashboard</a>
 </div>
 
 <nav>
   <div style="display:flex;align-items:center;gap:12px;">
-    <div class="nav-brand">Fuel<span>Transform</span>Perform</div>
+    <div class="nav-brand">Stonebound <span>Performance</span></div>
     <span class="admin-badge">ADMIN</span>
   </div>
-  <button class="btn-signout" id="btnSignout">Sign Out</button>
+  <div class="nav-right">
+    <a href="dashboard.html" style="color:var(--muted);font-size:0.82rem;text-decoration:none;font-weight:600;">Dashboard</a>
+    <button class="btn-theme" id="btnTheme" type="button" aria-pressed="false" aria-label="Toggle light and dark theme">Theme</button>
+    <button class="btn-signout" id="btnSignout">Sign Out</button>
+  </div>
 </nav>
 
 <div class="page" id="mainContent" style="display:none;">
@@ -141,6 +185,7 @@
     <button class="tab" onclick="switchTab('subscriptions')">Subscriptions</button>
     <button class="tab" onclick="switchTab('inquiries')">Inquiries</button>
     <button class="tab" onclick="switchTab('institutions')">Institutions</button>
+    <button class="tab" onclick="switchTab('audit')">Activity</button>
   </div>
 
   <!-- ── ATHLETES TAB ── -->
@@ -157,6 +202,7 @@
           <option value="pro">Pro</option>
           <option value="elite">Elite</option>
           <option value="team">Team</option>
+          <option value="institutional">Institutional</option>
         </select>
         <select class="filter-input" id="userRoleFilter" onchange="filterUsers()">
           <option value="">All Roles</option>
@@ -223,17 +269,42 @@
     </div>
   </div>
 
+  <!-- ── AUDIT / ACTIVITY TAB ── -->
+  <div class="tab-panel" id="tab-audit">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">System Activity (Stripe + ops)</div>
+      </div>
+      <p class="empty" style="padding:0 0 12px;text-align:left;">Recent audit events (super admin). Useful for watching webhook traffic during PoC.</p>
+      <div id="auditTable"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
 </div>
 
 <div id="toast"></div>
 
 <script>
+;(function initTheme() {
+  const root = document.documentElement
+  root.dataset.theme = localStorage.getItem('sb-theme') || 'dark'
+  const btn = document.getElementById('btnTheme')
+  const sync = () => { btn.setAttribute('aria-pressed', root.dataset.theme === 'light' ? 'true' : 'false') }
+  sync()
+  btn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
+    root.dataset.theme = next
+    localStorage.setItem('sb-theme', next)
+    sync()
+  })
+})()
+
 const SUPABASE_URL = 'https://bkdubocmtzruyojkknch.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZHVib2NtdHpydXlvamtrbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDE0NDYsImV4cCI6MjA5MDgxNzQ0Nn0.O2JnNrCL_C-VhABKJHilx7EKHrGQ1t8IhMsWxMZFVlQ'
 const { createClient } = supabase
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-let allUsers = [], allSubs = [], allInquiries = [], allInstitutions = []
+let allUsers = [], allSubs = [], allInquiries = [], allInstitutions = [], allAudit = []
 
 function toast(msg, type = 'success') {
   const el = document.getElementById('toast')
@@ -243,7 +314,7 @@ function toast(msg, type = 'success') {
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
-    const panels = ['users','subscriptions','inquiries','institutions']
+    const panels = ['users','subscriptions','inquiries','institutions','audit']
     t.classList.toggle('active', panels[i] === name)
   })
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
@@ -265,7 +336,7 @@ async function loadStats() {
     sb.from('profiles').select('*', { count: 'exact', head: true }),
     sb.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
     sb.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-    sb.from('payments').select('amount_cents, status').eq('status', 'paid').gte('paid_at', thirtyDaysAgo),
+    sb.from('payments').select('amount_cents, status').in('status', ['paid', 'succeeded']).gte('paid_at', thirtyDaysAgo),
     sb.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'open'),
   ])
 
@@ -283,7 +354,7 @@ async function loadStats() {
 // ── USERS ────────────────────────────────────────────────────
 async function loadUsers() {
   const { data } = await sb.from('profiles')
-    .select('id, full_name, email, sport, role, subscription_plan, institution, created_at')
+    .select('id, full_name, email, sport, role, subscription_plan, institution, institution_id, created_at')
     .order('created_at', { ascending: false })
     .limit(200)
   allUsers = data || []
@@ -295,18 +366,48 @@ function renderUsers(users) {
   if (!users.length) { el.innerHTML = '<div class="empty">No athletes found.</div>'; return }
   el.innerHTML = `<table>
     <thead><tr>
-      <th>Name</th><th>Email</th><th>Sport</th><th>Role</th><th>Plan</th><th>Institution</th><th>Joined</th>
+      <th>Name</th><th>Email</th><th>Sport</th><th>Role</th><th>Plan</th><th>Organization (license)</th><th>Joined</th>
     </tr></thead>
-    <tbody>${users.map(u => `<tr>
+    <tbody>${users.map(u => {
+      const instOpts = (allInstitutions || []).map((i) =>
+        `<option value="${i.id}" ${u.institution_id === i.id ? 'selected' : ''}>${(i.name || '').replace(/</g, '&lt;')}</option>`
+      ).join('')
+      return `<tr>
       <td>${u.full_name || '—'}</td>
       <td style="color:var(--muted)">${u.email || '—'}</td>
       <td>${u.sport || '—'}</td>
       <td><span class="badge free">${u.role || 'athlete'}</span></td>
       <td><span class="badge ${u.subscription_plan === 'free' || !u.subscription_plan ? 'free' : 'active'}">${u.subscription_plan || 'free'}</span></td>
-      <td style="color:var(--muted)">${u.institution || '—'}</td>
+      <td>
+        <select class="filter-input inst-select" onchange="assignUserInstitution('${u.id}', this.value)">
+          <option value="">— None —</option>${instOpts}
+        </select>
+      </td>
       <td style="color:var(--muted)">${u.created_at ? new Date(u.created_at).toLocaleDateString() : '—'}</td>
-    </tr>`).join('')}</tbody>
+    </tr>`
+    }).join('')}</tbody>
   </table>`
+}
+
+window.assignUserInstitution = async function assignUserInstitution(userId, institutionId) {
+  const inst = institutionId ? allInstitutions.find((i) => i.id === institutionId) : null
+  const { error } = await sb.from('profiles').update({
+    institution_id: institutionId || null,
+    institution: inst ? inst.name : null,
+    updated_at: new Date().toISOString(),
+  }).eq('id', userId)
+  if (error) {
+    toast(error.message || 'Update failed', 'error')
+    return
+  }
+  toast('Organization updated. Seat counts refresh automatically.')
+  allUsers = allUsers.map((u) =>
+    u.id === userId
+      ? { ...u, institution_id: institutionId || null, institution: inst ? inst.name : null }
+      : u
+  )
+  await loadInstitutions()
+  filterUsers()
 }
 
 function filterUsers() {
@@ -444,6 +545,37 @@ function renderInstitutions(institutions) {
   </table>`
 }
 
+
+// ── AUDIT LOG ───────────────────────────────────────────────
+async function loadAudit() {
+  const { data } = await sb.from('audit_log')
+    .select('id, actor_email, action, target_type, target_id, new_values, created_at')
+    .order('created_at', { ascending: false })
+    .limit(150)
+  allAudit = data || []
+  renderAudit(allAudit)
+}
+
+function renderAudit(rows) {
+  const el = document.getElementById('auditTable')
+  if (!rows.length) { el.innerHTML = '<div class="empty">No audit events yet.</div>'; return }
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Details</th>
+    </tr></thead>
+    <tbody>${rows.map(r => {
+      const detail = r.new_values ? JSON.stringify(r.new_values).slice(0, 160) : '—'
+      return `<tr>
+        <td style="color:var(--muted);white-space:nowrap">${r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+        <td style="color:var(--muted)">${r.actor_email || '—'}</td>
+        <td><span class="badge free">${r.action || '—'}</span></td>
+        <td style="color:var(--muted)">${r.target_type || '—'} · ${r.target_id || '—'}</td>
+        <td style="color:var(--muted);font-size:0.75rem;max-width:360px;word-break:break-word">${detail}</td>
+      </tr>`
+    }).join('')}</tbody>
+  </table>`
+}
+
 // ── SIGN OUT ─────────────────────────────────────────────────
 document.getElementById('btnSignout').addEventListener('click', async () => {
   await sb.auth.signOut()
@@ -453,7 +585,7 @@ document.getElementById('btnSignout').addEventListener('click', async () => {
 // ── INIT ─────────────────────────────────────────────────────
 async function init() {
   const { data: { session } } = await sb.auth.getSession()
-  if (!session) { window.location.href = 'index.html?auth=required'; return }
+  if (!session) { window.location.href = 'index.html?auth=required#sign-in'; return }
 
   // Verify super_admin role
   const { data: profile } = await sb.from('profiles')
@@ -468,13 +600,13 @@ async function init() {
 
   document.getElementById('mainContent').style.display = 'block'
 
-  // Load all data in parallel
+  await loadInstitutions()
   await Promise.all([
     loadStats(),
     loadUsers(),
     loadSubscriptions(),
     loadInquiries(),
-    loadInstitutions(),
+    loadAudit(),
   ])
 }
 

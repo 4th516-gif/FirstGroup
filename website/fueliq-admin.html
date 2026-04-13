@@ -183,6 +183,7 @@
     <button class="tab" onclick="switchTab('subscriptions')">Subscriptions</button>
     <button class="tab" onclick="switchTab('inquiries')">Inquiries</button>
     <button class="tab" onclick="switchTab('institutions')">Institutions</button>
+    <button class="tab" onclick="switchTab('audit')">Activity</button>
   </div>
 
   <!-- ── ATHLETES TAB ── -->
@@ -265,6 +266,17 @@
     </div>
   </div>
 
+  <!-- ── AUDIT / ACTIVITY TAB ── -->
+  <div class="tab-panel" id="tab-audit">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">System Activity (Stripe + ops)</div>
+      </div>
+      <p class="empty" style="padding:0 0 12px;text-align:left;">Recent audit events (super admin). Useful for watching webhook traffic during PoC.</p>
+      <div id="auditTable"><div class="empty">Loading...</div></div>
+    </div>
+  </div>
+
 </div>
 
 <div id="toast"></div>
@@ -289,7 +301,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const { createClient } = supabase
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-let allUsers = [], allSubs = [], allInquiries = [], allInstitutions = []
+let allUsers = [], allSubs = [], allInquiries = [], allInstitutions = [], allAudit = []
 
 function toast(msg, type = 'success') {
   const el = document.getElementById('toast')
@@ -299,7 +311,7 @@ function toast(msg, type = 'success') {
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
-    const panels = ['users','subscriptions','inquiries','institutions']
+    const panels = ['users','subscriptions','inquiries','institutions','audit']
     t.classList.toggle('active', panels[i] === name)
   })
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'))
@@ -321,7 +333,7 @@ async function loadStats() {
     sb.from('profiles').select('*', { count: 'exact', head: true }),
     sb.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', sevenDaysAgo),
     sb.from('subscriptions').select('*', { count: 'exact', head: true }).eq('status', 'active'),
-    sb.from('payments').select('amount_cents, status').eq('status', 'paid').gte('paid_at', thirtyDaysAgo),
+    sb.from('payments').select('amount_cents, status').in('status', ['paid', 'succeeded']).gte('paid_at', thirtyDaysAgo),
     sb.from('inquiries').select('*', { count: 'exact', head: true }).eq('status', 'open'),
   ])
 
@@ -500,6 +512,37 @@ function renderInstitutions(institutions) {
   </table>`
 }
 
+
+// ── AUDIT LOG ───────────────────────────────────────────────
+async function loadAudit() {
+  const { data } = await sb.from('audit_log')
+    .select('id, actor_email, action, target_type, target_id, new_values, created_at')
+    .order('created_at', { ascending: false })
+    .limit(150)
+  allAudit = data || []
+  renderAudit(allAudit)
+}
+
+function renderAudit(rows) {
+  const el = document.getElementById('auditTable')
+  if (!rows.length) { el.innerHTML = '<div class="empty">No audit events yet.</div>'; return }
+  el.innerHTML = `<table>
+    <thead><tr>
+      <th>When</th><th>Actor</th><th>Action</th><th>Target</th><th>Details</th>
+    </tr></thead>
+    <tbody>${rows.map(r => {
+      const detail = r.new_values ? JSON.stringify(r.new_values).slice(0, 160) : '—'
+      return `<tr>
+        <td style="color:var(--muted);white-space:nowrap">${r.created_at ? new Date(r.created_at).toLocaleString() : '—'}</td>
+        <td style="color:var(--muted)">${r.actor_email || '—'}</td>
+        <td><span class="badge free">${r.action || '—'}</span></td>
+        <td style="color:var(--muted)">${r.target_type || '—'} · ${r.target_id || '—'}</td>
+        <td style="color:var(--muted);font-size:0.75rem;max-width:360px;word-break:break-word">${detail}</td>
+      </tr>`
+    }).join('')}</tbody>
+  </table>`
+}
+
 // ── SIGN OUT ─────────────────────────────────────────────────
 document.getElementById('btnSignout').addEventListener('click', async () => {
   await sb.auth.signOut()
@@ -531,6 +574,7 @@ async function init() {
     loadSubscriptions(),
     loadInquiries(),
     loadInstitutions(),
+    loadAudit(),
   ])
 }
 

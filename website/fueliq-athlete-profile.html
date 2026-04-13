@@ -135,6 +135,13 @@
     @keyframes pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
     .empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 20px 0; }
 
+
+    .plan-actions { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .plan-actions .muted { font-size: 0.78rem; line-height: 1.35; }
+    .btn-upgrade { width: 100%; padding: 10px 14px; border-radius: 10px; border: none; cursor: pointer; font-size: 0.85rem; font-weight: 700; color: #fff; background: var(--gradient); transition: transform .15s ease, opacity .15s ease; }
+    .btn-upgrade:hover { transform: translateY(-1px); }
+    .btn-upgrade:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+
     @media (prefers-reduced-motion: reduce) {
       .card:hover, .btn-connect:hover, .btn-signout:hover, .nav-links a:hover { transform: none; }
     }
@@ -165,6 +172,16 @@
         <div class="profile-sub" id="profileSport">—</div>
         <div class="plan-badge" id="planBadge">⚡ Free</div>
         <div class="profile-meta" id="profileMeta"></div>
+      </div>
+
+      <!-- Subscription upgrade -->
+      <div class="card" id="upgradePanel" style="display:none;">
+        <div class="card-title">Upgrade</div>
+        <p class="muted" style="font-size:0.82rem;margin-bottom:8px;">Start the PoC subscription to unlock full athlete tooling.</p>
+        <div class="plan-actions">
+          <button class="btn-upgrade" id="btnUpgradeMonthly" type="button">Upgrade to Pro (monthly)</button>
+          <p class="muted">Annual billing is available once a Stripe annual price is configured in Supabase.</p>
+        </div>
       </div>
 
       <!-- Wearable Devices -->
@@ -290,6 +307,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const WHOOP_CLIENT_ID = '47f70a90-26dd-4885-926d-bd9256724d73'
 const POLAR_CLIENT_ID = 'e45c4048-9a86-4878-b5bb-5ff897c8188c'
 const SITE_URL = 'https://ftpiq.netlify.app'
+const CREATE_CHECKOUT_URL = `${SITE_URL}/functions/create-checkout-session`
 
 const { createClient } = supabase
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
@@ -314,6 +332,8 @@ function checkOAuthReturn() {
   if (params.get('polar') === 'connected') toast('Polar connected successfully!')
   if (params.get('polar') === 'denied')    toast('Polar connection cancelled.', 'error')
   if (params.get('polar') === 'error')     toast('Polar connection failed. Try again.', 'error')
+  if (params.get('checkout') === 'success') toast('Checkout completed. Syncing subscription...')
+  if (params.get('checkout') === 'cancelled') toast('Checkout cancelled.', 'error')
   // Clean the URL
   if (params.toString()) window.history.replaceState({}, '', window.location.pathname)
 }
@@ -342,6 +362,37 @@ function connectPolar() {
   window.location.href = `https://flow.polar.com/oauth2/authorization?${params}`
 }
 
+
+// ── STRIPE CHECKOUT ───────────────────────────────────────────
+async function startCheckout(billingCycle = 'monthly') {
+  if (!athleteId) return toast('Please sign in first.', 'error')
+  const { data: { session } } = await sb.auth.getSession()
+  if (!session?.access_token) return toast('Session expired. Refresh and try again.', 'error')
+
+  const btn = document.getElementById('btnUpgradeMonthly')
+  if (btn) btn.disabled = true
+
+  try {
+    const res = await fetch(CREATE_CHECKOUT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${session.access_token}`,
+        apikey: SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ planSlug: 'athlete_pro', billingCycle }),
+    })
+    const payload = await res.json().catch(() => ({}))
+    if (!res.ok || !payload.url) {
+      throw new Error(payload.error || 'Unable to start checkout')
+    }
+    window.location.href = payload.url
+  } catch (err) {
+    toast(err.message || 'Checkout failed', 'error')
+    if (btn) btn.disabled = false
+  }
+}
+
 // ── LOAD PROFILE ─────────────────────────────────────────────
 async function loadProfile(uid) {
   const { data } = await sb.from('profiles').select('*').eq('id', uid).single()
@@ -352,8 +403,14 @@ async function loadProfile(uid) {
   document.getElementById('profileName').textContent = data.full_name || data.email
   document.getElementById('profileSport').textContent =
     [data.sport, data.position].filter(Boolean).join(' · ') || 'No sport set'
+  const planKey = (data.subscription_plan || 'free').toLowerCase()
   document.getElementById('planBadge').textContent =
-    `⚡ ${(data.subscription_plan || 'free').charAt(0).toUpperCase() + (data.subscription_plan || 'free').slice(1)}`
+    `⚡ ${planKey.charAt(0).toUpperCase() + planKey.slice(1)}`
+
+  const upgradePanel = document.getElementById('upgradePanel')
+  if (upgradePanel) {
+    upgradePanel.style.display = planKey === 'free' ? 'block' : 'none'
+  }
 
   const meta = [
     ['Institution', data.institution || '—'],
@@ -549,6 +606,8 @@ async function init() {
     loadBiometrics(athleteId),
   ])
 }
+
+document.getElementById('btnUpgradeMonthly')?.addEventListener('click', () => startCheckout('monthly'))
 
 init()
 </script>

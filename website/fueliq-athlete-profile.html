@@ -153,6 +153,7 @@
   <div class="nav-brand">Stonebound <span>Performance</span></div>
   <div class="nav-links">
     <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
     <a href="fueliq-athlete-profile.html" style="color:var(--text)">My Profile</a>
     <button class="btn-theme" id="btnTheme" type="button" aria-pressed="false" aria-label="Toggle light and dark theme">Theme</button>
     <button class="btn-signout" id="btnSignout">Sign Out</button>
@@ -590,7 +591,7 @@ async function init() {
 
   const { data: { session } } = await sb.auth.getSession()
   if (!session) {
-    window.location.href = 'index.html?auth=required'
+    window.location.href = 'index.html?auth=required#sign-in'
     return
   }
 

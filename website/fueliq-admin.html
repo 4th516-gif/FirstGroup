@@ -137,7 +137,7 @@
   <div style="font-size:2rem;">🚫</div>
   <div style="font-size:1.1rem;font-weight:700;">Access Denied</div>
   <div style="color:var(--muted);font-size:0.9rem;">Super admin role required.</div>
-  <a href="index.html" style="color:var(--primary);font-size:0.85rem;">← Go Home</a>
+  <a href="dashboard.html" style="color:var(--primary);font-size:0.85rem;">← Dashboard</a>
 </div>
 
 <nav>
@@ -146,6 +146,7 @@
     <span class="admin-badge">ADMIN</span>
   </div>
   <div class="nav-right">
+    <a href="dashboard.html" style="color:var(--muted);font-size:0.82rem;text-decoration:none;font-weight:600;">Dashboard</a>
     <button class="btn-theme" id="btnTheme" type="button" aria-pressed="false" aria-label="Toggle light and dark theme">Theme</button>
     <button class="btn-signout" id="btnSignout">Sign Out</button>
   </div>
@@ -552,7 +553,7 @@ document.getElementById('btnSignout').addEventListener('click', async () => {
 // ── INIT ─────────────────────────────────────────────────────
 async function init() {
   const { data: { session } } = await sb.auth.getSession()
-  if (!session) { window.location.href = 'index.html?auth=required'; return }
+  if (!session) { window.location.href = 'index.html?auth=required#sign-in'; return }
 
   // Verify super_admin role
   const { data: profile } = await sb.from('profiles')

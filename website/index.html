@@ -170,16 +170,45 @@
       font-size: .78rem;
       text-align: center;
     }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+      margin-top: 20px;
+      scroll-margin-top: 88px;
+    }
+    .auth-card h2 { font-size: 1rem; margin-bottom: 8px; }
+    .auth-card .auth-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .auth-card input[type="email"] {
+      flex: 1;
+      min-width: 220px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font-size: 0.88rem;
+    }
+    .auth-card input:focus { outline: none; border-color: var(--primary); }
+    #magicMsg { margin-top: 12px; font-size: 0.82rem; min-height: 1.2em; }
+    #magicMsg.ok { color: var(--secondary); }
+    #magicMsg.err { color: #f87171; }
+    .nav-signed { font-size: 0.78rem; color: var(--muted); max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
 </head>
 <body>
   <div class="shell">
     <nav>
       <div class="brand">Stonebound <span>Performance</span></div>
-      <div class="nav-actions">
+      <div class="nav-actions" id="navActions">
         <button class="btn" id="themeToggle">Toggle mode</button>
-        <a class="btn" href="fueliq-admin.html" style="text-decoration:none;">Admin</a>
-        <a class="btn primary" href="fueliq-athlete-profile.html" style="text-decoration:none;">Athlete Profile</a>
+        <span class="nav-signed hidden" id="navSigned" title=""></span>
+        <a class="btn" href="#sign-in" id="btnSignInNav" style="text-decoration:none;">Sign in</a>
+        <a class="btn" href="fueliq-athlete-profile.html" style="text-decoration:none;">Athlete hub</a>
+        <a class="btn primary" href="dashboard.html" style="text-decoration:none;">Dashboard</a>
       </div>
     </nav>
 
@@ -230,10 +259,24 @@
       </article>
     </section>
 
+    <section class="auth-card" id="sign-in">
+      <h2>Sign in to Stonebound Performance</h2>
+      <p class="muted">PoC: we email you a magic link. After you click it, open <strong>Dashboard</strong> for the right view for your seat (user, seat holder, or owner).</p>
+      <form class="auth-row" id="magicForm">
+        <input type="email" id="magicEmail" name="email" autocomplete="email" required placeholder="you@example.com" />
+        <button type="submit" class="btn primary" id="magicSubmit">Email magic link</button>
+      </form>
+      <p id="magicMsg" class="muted" role="status"></p>
+    </section>
+
     <div class="footer">Stonebound Performance · Netlify PoC</div>
   </div>
 
   <script>
+    const SUPABASE_URL = 'https://bkdubocmtzruyojkknch.supabase.co'
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZHVib2NtdHpydXlvamtrbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDE0NDYsImV4cCI6MjA5MDgxNzQ0Nn0.O2JnNrCL_C-VhABKJHilx7EKHrGQ1t8IhMsWxMZFVlQ'
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+
     const root = document.documentElement
     const preferredTheme = localStorage.getItem('sb-theme') || 'dark'
     root.dataset.theme = preferredTheme
@@ -244,27 +287,74 @@
       localStorage.setItem('sb-theme', next)
     })
 
-    ;(async function personalizeHero() {
+    function setNavSession(profile, email) {
+      const signed = document.getElementById('navSigned')
+      const btnIn = document.getElementById('btnSignInNav')
+      const first = (profile?.full_name || email || '').split(' ')[0] || 'Signed in'
+      signed.textContent = first
+      signed.title = email || ''
+      signed.classList.remove('hidden')
+      btnIn.classList.add('hidden')
+    }
+
+    function clearNavSession() {
+      document.getElementById('navSigned').classList.add('hidden')
+      document.getElementById('btnSignInNav').classList.remove('hidden')
+    }
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('auth') === 'required') {
+      const m = document.getElementById('magicMsg')
+      m.textContent = 'Please sign in to continue.'
+      m.className = 'err'
+      m.classList.remove('muted')
+      document.getElementById('sign-in').scrollIntoView({ behavior: 'smooth' })
+    }
+
+    document.getElementById('magicForm').addEventListener('submit', async (e) => {
+      e.preventDefault()
+      const email = document.getElementById('magicEmail').value.trim()
+      const msg = document.getElementById('magicMsg')
+      const btn = document.getElementById('magicSubmit')
+      msg.className = 'muted'
+      msg.textContent = 'Sending…'
+      btn.disabled = true
       try {
-        const SUPABASE_URL = 'https://bkdubocmtzruyojkknch.supabase.co'
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZHVib2NtdHpydXlvamtrbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDE0NDYsImV4cCI6MjA5MDgxNzQ0Nn0.O2JnNrCL_C-VhABKJHilx7EKHrGQ1t8IhMsWxMZFVlQ'
-        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        const redirectTo = new URL('dashboard.html', window.location.href).href
+        const { error } = await sb.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: redirectTo },
+        })
+        if (error) throw error
+        msg.className = 'ok'
+        msg.textContent = 'Check your email for the sign-in link, then open Dashboard.'
+      } catch (err) {
+        msg.className = 'err'
+        msg.textContent = err.message || 'Could not send link.'
+      } finally {
+        btn.disabled = false
+      }
+    })
+
+    ;(async function initHome() {
+      try {
         const { data: { session } } = await sb.auth.getSession()
-        if (!session?.user?.id) return
+        if (session?.user?.email) setNavSession(null, session.user.email)
 
-        const { data: profile } = await sb
-          .from('profiles')
-          .select('full_name, sport, season_phase')
-          .eq('id', session.user.id)
-          .single()
+        const { data: profile } = session?.user?.id
+          ? await sb.from('profiles').select('full_name, sport, season_phase').eq('id', session.user.id).single()
+          : { data: null }
 
-        if (!profile) return
+        if (profile && session?.user?.email) setNavSession(profile, session.user.email)
+        if (!session) clearNavSession()
 
-        const name = (profile.full_name || '').split(' ')[0] || 'Athlete'
-        const sport = profile.sport ? ` in ${profile.sport}` : ''
-        const phase = profile.season_phase ? ` (${profile.season_phase} phase)` : ''
-        document.getElementById('heroCopy').textContent =
-          `Welcome back, ${name}. Your current focus${sport}${phase} is reflected through streamlined targets, wearable insights, and recovery guidance.`
+        if (profile) {
+          const name = (profile.full_name || '').split(' ')[0] || 'Athlete'
+          const sport = profile.sport ? ` in ${profile.sport}` : ''
+          const phase = profile.season_phase ? ` (${profile.season_phase} phase)` : ''
+          document.getElementById('heroCopy').textContent =
+            `Welcome back, ${name}. Your current focus${sport}${phase} is reflected through streamlined targets, wearable insights, and recovery guidance. Open Dashboard for your seat-specific workspace.`
+        }
       } catch (_) {}
     })()
   </script>

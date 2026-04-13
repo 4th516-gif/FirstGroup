@@ -9,8 +9,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const POLAR_CLIENT_ID = Deno.env.get('POLAR_CLIENT_ID')!         // e45c4048-9a86-4878-b5bb-5ff897c8188c
-const POLAR_CLIENT_SECRET = Deno.env.get('POLAR_CLIENT_SECRET')! // ac16b6cc-d315-4369-af65-b0b103934933
+const POLAR_CLIENT_ID = Deno.env.get('POLAR_CLIENT_ID')!
+const POLAR_CLIENT_SECRET = Deno.env.get('POLAR_CLIENT_SECRET')!
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://ftpiq.netlify.app'
 
 const POLAR_TOKEN_URL = 'https://polarremote.com/v2/oauth2/token'

@@ -9,7 +9,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-const WHOOP_CLIENT_ID = Deno.env.get('WHOOP_CLIENT_ID')!        // 47f70a90-26dd-4885-926d-bd9256724d73
+const WHOOP_CLIENT_ID = Deno.env.get('WHOOP_CLIENT_ID')!
 const WHOOP_CLIENT_SECRET = Deno.env.get('WHOOP_CLIENT_SECRET')!
 const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://ftpiq.netlify.app'
 

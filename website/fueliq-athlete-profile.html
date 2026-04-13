@@ -3,34 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Athlete Profile — Fuel Transform Perform</title>
+  <title>Athlete Profile — Stonebound Performance</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
-      --bg:       #0a0a14;
-      --surface:  #13131f;
-      --surface2: #1a1a2e;
-      --border:   #2a2a44;
-      --primary:  #6c63ff;
+      color-scheme: dark;
+      --bg:       #06080f;
+      --surface:  #0f1424;
+      --surface2: #171f36;
+      --border:   #2a3557;
+      --primary:  #6d7cff;
       --green:    #10b981;
       --amber:    #f59e0b;
       --red:      #ef4444;
-      --text:     #e2e8f0;
-      --muted:    #64748b;
+      --text:     #e8ecf7;
+      --muted:    #8f9ab8;
       --radius:   12px;
+      --gradient: linear-gradient(135deg, #6d7cff 0%, #10b981 100%);
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg:       #f5f7ff;
+      --surface:  #ffffff;
+      --surface2: #eef3ff;
+      --border:   #d4def5;
+      --primary:  #4e5df3;
+      --green:    #0f9a70;
+      --amber:    #d97706;
+      --red:      #dc2626;
+      --text:     #10162b;
+      --muted:    #5f6e91;
+      --gradient: linear-gradient(135deg, #4e5df3 0%, #0f9a70 100%);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+    body {
+      background:
+        radial-gradient(circle at 85% 0%, rgba(109,124,255,.14), transparent 42%),
+        radial-gradient(circle at 12% 100%, rgba(16,185,129,.12), transparent 48%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, sans-serif;
+      min-height: 100vh;
+    }
 
     /* ── NAV ── */
     nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
-    .nav-brand { font-size: 1.1rem; font-weight: 700; color: var(--primary); letter-spacing: -0.5px; }
-    .nav-brand span { color: var(--green); }
+    .nav-brand { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+    .nav-brand span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
     .nav-links { display: flex; gap: 20px; align-items: center; }
-    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; transition: color .2s; }
-    .nav-links a:hover { color: var(--text); }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.875rem; transition: color .2s, transform .15s; }
+    .nav-links a:hover { color: var(--text); transform: translateY(-1px); }
+    .btn-theme { background: var(--surface2); border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; font-weight: 600; transition: border-color .2s, color .2s, transform .15s; }
+    .btn-theme:hover { border-color: var(--primary); color: var(--text); transform: translateY(-1px); }
     .btn-signout { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; transition: all .2s; }
-    .btn-signout:hover { border-color: var(--red); color: var(--red); }
+    .btn-signout:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
 
     /* ── LAYOUT ── */
     .page { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
@@ -38,7 +69,8 @@
     @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
 
     /* ── CARDS ── */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color .2s, transform .2s; }
+    .card:hover { border-color: color-mix(in srgb, var(--primary) 45%, var(--border)); transform: translateY(-1px); }
     .card-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 16px; }
 
     /* ── PROFILE SIDEBAR ── */
@@ -74,7 +106,7 @@
     .wearable-status { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
     .wearable-status.connected { color: var(--green); }
     .btn-connect { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--primary); background: transparent; color: var(--primary); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; }
-    .btn-connect:hover { background: var(--primary); color: #fff; }
+    .btn-connect:hover { background: var(--gradient); border-color: transparent; color: #fff; transform: translateY(-1px); }
     .btn-disconnect { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; transition: all .2s; }
     .btn-disconnect:hover { border-color: var(--red); color: var(--red); }
     .btn-connect:disabled { opacity: .5; cursor: not-allowed; }
@@ -102,15 +134,20 @@
     .skeleton { background: var(--surface2); border-radius: 6px; animation: pulse 1.5s infinite; }
     @keyframes pulse { 0%,100% { opacity: .5; } 50% { opacity: 1; } }
     .empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 20px 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .card:hover, .btn-connect:hover, .btn-signout:hover, .nav-links a:hover { transform: none; }
+    }
   </style>
 </head>
 <body>
 
 <nav>
-  <div class="nav-brand">Fuel<span>Transform</span>Perform</div>
+  <div class="nav-brand">Stonebound <span>Performance</span></div>
   <div class="nav-links">
     <a href="index.html">Home</a>
     <a href="fueliq-athlete-profile.html" style="color:var(--text)">My Profile</a>
+    <button class="btn-theme" id="btnTheme" type="button" aria-pressed="false" aria-label="Toggle light and dark theme">Theme</button>
     <button class="btn-signout" id="btnSignout">Sign Out</button>
   </div>
 </nav>
@@ -234,6 +271,20 @@
 <div id="toast"></div>
 
 <script>
+;(function initTheme() {
+  const root = document.documentElement
+  root.dataset.theme = localStorage.getItem('sb-theme') || 'dark'
+  const btn = document.getElementById('btnTheme')
+  const sync = () => { btn.setAttribute('aria-pressed', root.dataset.theme === 'light' ? 'true' : 'false') }
+  sync()
+  btn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
+    root.dataset.theme = next
+    localStorage.setItem('sb-theme', next)
+    sync()
+  })
+})()
+
 const SUPABASE_URL = 'https://bkdubocmtzruyojkknch.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZHVib2NtdHpydXlvamtrbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDE0NDYsImV4cCI6MjA5MDgxNzQ0Nn0.O2JnNrCL_C-VhABKJHilx7EKHrGQ1t8IhMsWxMZFVlQ'
 const WHOOP_CLIENT_ID = '47f70a90-26dd-4885-926d-bd9256724d73'

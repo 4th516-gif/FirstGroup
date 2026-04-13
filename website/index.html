@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stonebound Performance — Human Performance Platform</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #06080f;
+      --surface: #0f1424;
+      --surface-2: #171f36;
+      --border: #2a3557;
+      --text: #e8ecf7;
+      --muted: #8f9ab8;
+      --primary: #6d7cff;
+      --secondary: #10b981;
+      --gradient: linear-gradient(135deg, #6d7cff 0%, #10b981 100%);
+      --shadow: 0 10px 30px rgba(3, 8, 20, 0.35);
+      --radius: 14px;
+    }
+
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f5f7ff;
+      --surface: #ffffff;
+      --surface-2: #eef3ff;
+      --border: #d4def5;
+      --text: #10162b;
+      --muted: #5f6e91;
+      --primary: #4e5df3;
+      --secondary: #0f9a70;
+      --gradient: linear-gradient(135deg, #4e5df3 0%, #0f9a70 100%);
+      --shadow: 0 10px 30px rgba(18, 27, 58, 0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; }
+    body {
+      background:
+        radial-gradient(circle at 80% 0%, rgba(109,124,255,.18), transparent 40%),
+        radial-gradient(circle at 10% 100%, rgba(16,185,129,.16), transparent 45%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      line-height: 1.45;
+    }
+
+    .shell { max-width: 1120px; margin: 0 auto; padding: 24px 20px 40px; }
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+    }
+
+    .brand { font-weight: 800; letter-spacing: -0.02em; font-size: 1.05rem; }
+    .brand span {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .nav-actions { display: flex; gap: 10px; align-items: center; }
+    .btn {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--surface-2);
+      padding: 8px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: transform .18s ease, border-color .18s ease, background .18s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: var(--primary); }
+    .btn:active { transform: translateY(0); }
+    .btn.primary {
+      background: var(--gradient);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.74rem; font-weight: 700;
+      color: var(--secondary);
+      background: color-mix(in srgb, var(--secondary) 18%, transparent);
+      border: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+      border-radius: 999px; padding: 4px 10px; margin-bottom: 12px;
+    }
+    .hero h1 { font-size: clamp(1.4rem, 4vw, 2.3rem); letter-spacing: -0.03em; margin-bottom: 10px; }
+    .hero p { color: var(--muted); max-width: 76ch; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 16px;
+      margin: 16px 0 20px;
+    }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      transition: transform .2s ease, border-color .2s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--primary) 55%, var(--border)); }
+    .card h2 { font-size: 1rem; margin-bottom: 10px; }
+    .muted { color: var(--muted); font-size: .86rem; }
+
+    .trend-list { display: grid; gap: 8px; margin-top: 12px; }
+    .trend-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 11px; border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      transition: transform .16s ease;
+    }
+    .trend-item:hover { transform: translateX(2px); }
+    .trend-item strong { font-size: .85rem; }
+    .trend-item span { color: var(--muted); font-size: .78rem; }
+
+    .kpi-wrap { margin-top: 10px; display: grid; gap: 10px; }
+    .kpi-row { display: grid; gap: 5px; }
+    .kpi-label { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted); }
+    .bar { background: var(--surface-2); border-radius: 999px; height: 8px; overflow: hidden; }
+    .bar > span {
+      display: block; height: 100%;
+      border-radius: 999px;
+      background: var(--gradient);
+      width: var(--target, 0%);
+      transition: width .6s ease;
+    }
+
+    .next-grid {
+      display: grid; gap: 10px; margin-top: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 700px) { .next-grid { grid-template-columns: 1fr; } }
+    .next-item {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: .82rem;
+    }
+    .next-item strong { display: block; margin-bottom: 4px; }
+
+    .footer {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .78rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav>
+      <div class="brand">Stonebound <span>Performance</span></div>
+      <div class="nav-actions">
+        <button class="btn" id="themeToggle">Toggle mode</button>
+        <a class="btn" href="fueliq-admin.html" style="text-decoration:none;">Admin</a>
+        <a class="btn primary" href="fueliq-athlete-profile.html" style="text-decoration:none;">Athlete Profile</a>
+      </div>
+    </nav>
+
+    <section class="hero">
+      <div class="pill">PoC Launch · 2026 UX Direction</div>
+      <h1>Personalized performance coaching with cleaner, faster interactions.</h1>
+      <p id="heroCopy">Welcome back. Your dashboard focuses on what matters now: wearable sync status, daily fueling targets, and clear progress snapshots.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Top UX trends now reflected in this PoC</h2>
+        <p class="muted">Applied from the 2026 UX trend set: responsive layout, dark mode, micro-interactions, clean UI with visual accents, personalization, and lightweight data visualization.</p>
+        <div class="trend-list">
+          <div class="trend-item"><strong>Responsive design</strong><span>Fluid grid + mobile-first</span></div>
+          <div class="trend-item"><strong>Dark mode</strong><span>User-controlled theme toggle</span></div>
+          <div class="trend-item"><strong>Micro-interactions</strong><span>Hover and motion feedback</span></div>
+          <div class="trend-item"><strong>Clean UI with a twist</strong><span>Gradient accents, low-noise cards</span></div>
+          <div class="trend-item"><strong>Personalized UX</strong><span>Contextual greeting + adaptive copy</span></div>
+          <div class="trend-item"><strong>Data visualization</strong><span>Progress bars for KPI readouts</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Performance snapshot</h2>
+        <p class="muted">Simple visual guidance for daily targets and recovery signals.</p>
+        <div class="kpi-wrap">
+          <div class="kpi-row">
+            <div class="kpi-label"><span>Nutrition adherence</span><span>84%</span></div>
+            <div class="bar"><span style="--target:84%"></span></div>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-label"><span>Recovery readiness</span><span>73%</span></div>
+            <div class="bar"><span style="--target:73%"></span></div>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi-label"><span>Wearable sync reliability</span><span>91%</span></div>
+            <div class="bar"><span style="--target:91%"></span></div>
+          </div>
+        </div>
+
+        <div class="next-grid">
+          <div class="next-item"><strong>App planning</strong>Use the same UI tokens and interaction patterns for iOS and Android components.</div>
+          <div class="next-item"><strong>Accessibility first</strong>Keep contrast high, maintain keyboard focus styles, and use semantic labels.</div>
+          <div class="next-item"><strong>Trust & clarity</strong>Show data provenance (WHOOP/Polar/Garmin) for every chart or recommendation.</div>
+          <div class="next-item"><strong>Phase 2 trend ideas</strong>Test cursor enhancements and richer 3D visual storytelling in marketing pages.</div>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer">Stonebound Performance · Netlify PoC</div>
+  </div>
+
+  <script>
+    const root = document.documentElement
+    const preferredTheme = localStorage.getItem('sb-theme') || 'dark'
+    root.dataset.theme = preferredTheme
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = root.dataset.theme === 'dark' ? 'light' : 'dark'
+      root.dataset.theme = next
+      localStorage.setItem('sb-theme', next)
+    })
+
+    ;(async function personalizeHero() {
+      try {
+        const SUPABASE_URL = 'https://bkdubocmtzruyojkknch.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJrZHVib2NtdHpydXlvamtrbmNoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUyNDE0NDYsImV4cCI6MjA5MDgxNzQ0Nn0.O2JnNrCL_C-VhABKJHilx7EKHrGQ1t8IhMsWxMZFVlQ'
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+        const { data: { session } } = await sb.auth.getSession()
+        if (!session?.user?.id) return
+
+        const { data: profile } = await sb
+          .from('profiles')
+          .select('full_name, sport, season_phase')
+          .eq('id', session.user.id)
+          .single()
+
+        if (!profile) return
+
+        const name = (profile.full_name || '').split(' ')[0] || 'Athlete'
+        const sport = profile.sport ? ` in ${profile.sport}` : ''
+        const phase = profile.season_phase ? ` (${profile.season_phase} phase)` : ''
+        document.getElementById('heroCopy').textContent =
+          `Welcome back, ${name}. Your current focus${sport}${phase} is reflected through streamlined targets, wearable insights, and recovery guidance.`
+      } catch (_) {}
+    })()
+  </script>
+</body>
+</html>

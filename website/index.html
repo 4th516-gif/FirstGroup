@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en" class="sb-splash-lock">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stonebound — Sports Nutrition Intelligence</title>
+  <meta name="description" content="Stonebound bridges your wearables, training load, and sports nutrition science so you can fuel with precision." />
+
+  <!-- Config must load before Supabase JS -->
+  <script src="site-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="stylesheet" href="stonebound-theme.css" />
+  <link rel="stylesheet" href="stonebound-visuals.css" />
+
+  <style>
+    /* ── Splash ──────────────────────────────────────────────── */
+    #sbSplash {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: var(--ink-0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      overflow-y: auto;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #sbSplash.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+    .splash-wordmark {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 0.06em;
+    }
+    .splash-tagline {
+      font-size: 0.9rem;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .splash-bar {
+      width: 180px;
+      height: 2px;
+      background: var(--surface2);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .splash-bar-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 2px;
+      animation: splashLoad 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes splashLoad {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+
+    /* ── Hero ───────────────────────────────────────────────── */
+    #hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      padding: clamp(80px, 12vw, 140px) clamp(16px, 4vw, 48px) clamp(48px, 8vw, 96px);
+    }
+    .hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201,168,76,.1);
+      border: 1px solid rgba(201,168,76,.25);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2rem, 5.5vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 20px;
+      max-width: 760px;
+    }
+    .hero-title em {
+      font-style: normal;
+      color: var(--gold);
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text-dim);
+      max-width: 540px;
+      line-height: 1.75;
+      margin-bottom: 36px;
+    }
+    .hero-ctas {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .hero-social-proof {
+      margin-top: 56px;
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .hero-stat-val {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .hero-stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Section full-width wrapper ─────────────────────────── */
+    .sb-section-outer {
+      width: 100%;
+    }
+    .sb-section-outer.alt {
+      background: rgba(255,255,255,0.015);
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    /* ── How it works steps ─────────────────────────────────── */
+    .sb-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+      counter-reset: steps;
+    }
+    .sb-step {
+      counter-increment: steps;
+      padding: 24px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      position: relative;
+    }
+    .sb-step::before {
+      content: counter(steps, decimal-leading-zero);
+      display: block;
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: rgba(201,168,76,0.2);
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .sb-step-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .sb-step-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ── Contact form ───────────────────────────────────────── */
+    .sb-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      max-width: 560px;
+    }
+    .sb-form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 520px) { .sb-form-row { grid-template-columns: 1fr; } }
+    .sb-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+    }
+    .sb-input:focus { border-color: var(--gold); }
+    textarea.sb-input { resize: vertical; min-height: 110px; }
+    .sb-input::placeholder { color: var(--muted); }
+    select.sb-input option { background: var(--surface2); }
+
+    /* ── Footer ─────────────────────────────────────────────── */
+    footer {
+      background: var(--surface);
+      border-top: 1px solid var(--glass-border);
+      padding: 32px clamp(16px, 4vw, 48px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .footer-brand {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.95rem;
+      color: var(--gold);
+    }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.82rem;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { color: var(--muted); font-size: 0.78rem; width: 100%; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SPLASH
+     ══════════════════════════════════════════════════════════════════════ -->
+<div id="sbSplash">
+  <div class="splash-wordmark">STONEBOUND</div>
+  <div class="splash-tagline">Sports Nutrition Intelligence</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     NAV
+     ══════════════════════════════════════════════════════════════════════ -->
+<nav class="sb-nav hub-glow">
+  <a href="index.html" class="sb-brand">STONEBOUND</a>
+  <div class="sb-nav-links">
+    <a href="#features">Features</a>
+    <a href="#guides">Guides</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+    <a href="stonebound-athlete-profile.html" style="color:var(--text);">My Profile</a>
+    <a href="stonebound-admin.html" style="color:var(--muted);">Admin</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     HERO
+     ══════════════════════════════════════════════════════════════════════ -->
+<div id="hero">
+  <!-- background orbs -->
+  <div class="sb-hero-orb sb-hero-orb-gold"></div>
+  <div class="sb-hero-orb sb-hero-orb-steel"></div>
+
+  <div class="hero-inner">
+    <div class="hero-kicker">✦ Early Access PoC</div>
+    <h1 class="hero-title">Know What Your<br>Body Needs <em>to Win</em></h1>
+    <p class="hero-sub">
+      Stonebound bridges your wearables, training load, and the science of
+      sports nutrition — so coaches and athletes can fuel with precision,
+      not guesswork.
+    </p>
+    <div class="hero-ctas">
+      <a id="heroStripeBtn" href="#pricing" class="btn btn-primary hub-glow">Get Early Access</a>
+      <a href="#features" class="btn btn-outline">See How It Works</a>
+    </div>
+    <div class="hero-social-proof">
+      <div class="hero-stat">
+        <span class="hero-stat-val">3+</span>
+        <span class="hero-stat-label">Wearable integrations</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">100%</span>
+        <span class="hero-stat-label">Evidence-based guides</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat-val">Real-time</span>
+        <span class="hero-stat-label">Load-adjusted targets</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sb-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     FEATURES
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="sb-section-outer" id="features">
+  <div class="sb-section">
+    <div class="sb-section-label">Why Stonebound</div>
+    <h2 class="sb-section-title">Built for Athletes Who Take Nutrition Seriously</h2>
+    <p class="sb-section-sub" style="margin-bottom:40px;">
+      Generic apps guess. Stonebound calculates — from your actual strain, sleep, and recovery data.
+    </p>
+    <div class="sb-feature-grid">
+      <div class="sb-feature-card">
+        <span class="sb-feature-icon">⌚</span>
+        <div class="sb-feature-title">Wearable Intelligence</div>
+        <p class="sb-feature-desc">
+          Connects to WHOOP, Polar, and Garmin. Your strain score, HRV, and sleep
+          performance become the inputs — not the afterthought.
+        </p>
+      </div>
+      <div class="sb-feature-card">
+        <span class="sb-feature-icon">🔬</span>
+        <div class="sb-feature-title">Evidence-Based Guides</div>
+        <p class="sb-feature-desc">
+          Every recommendation traces back to peer-reviewed research. Layman language,
+          real numbers, zero supplement-industry spin.
+        </p>
+      </div>
+      <div class="sb-feature-card">
+        <span class="sb-feature-icon">🎯</span>
+        <div class="sb-feature-title">Load-Adjusted Targets</div>
+        <p class="sb-feature-desc">
+          High-strain day vs. recovery day require different fuel. Stonebound adapts
+          daily calorie and macro targets to match your actual output.
+        </p>
+      </div>
+      <div class="sb-feature-card">
+        <span class="sb-feature-icon">📊</span>
+        <div class="sb-feature-title">Coach Dashboard</div>
+        <p class="sb-feature-desc">
+          Team admins see compliance at a glance — who's hitting protein targets,
+          who's under-fueled heading into competition week.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sb-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     HOW IT WORKS
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="sb-section-outer alt">
+  <div class="sb-section">
+    <div class="sb-section-label">Getting Started</div>
+    <h2 class="sb-section-title">Three Steps to Precision Fueling</h2>
+    <p class="sb-section-sub" style="margin-bottom:40px;">No long questionnaires. Just connect, calibrate, and go.</p>
+    <div class="sb-steps">
+      <div class="sb-step">
+        <div class="sb-step-title">Connect Your Wearable</div>
+        <p class="sb-step-desc">Link WHOOP, Polar, or Garmin with a single OAuth tap. Your historical data loads automatically.</p>
+      </div>
+      <div class="sb-step">
+        <div class="sb-step-title">Set Your Context</div>
+        <p class="sb-step-desc">Sport, position, training phase, body composition. Takes two minutes. Updates whenever your season changes.</p>
+      </div>
+      <div class="sb-step">
+        <div class="sb-step-title">Fuel With Precision</div>
+        <p class="sb-step-desc">See today's calorie and macro targets, adjusted for last night's sleep and this morning's recovery score.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sb-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     GUIDES
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="sb-section-outer" id="guides">
+  <div class="sb-section">
+    <div class="sb-section-label">Nutrition Guides</div>
+    <h2 class="sb-section-title">The Science, Without the Jargon</h2>
+    <p class="sb-section-sub" style="margin-bottom:40px;">
+      Each guide uses teaching anchors — real numbers to anchor your understanding.
+      They are not prescriptions. Your targets are calculated from your data.
+    </p>
+    <div class="sb-guide-grid">
+
+      <!-- Protein Guide -->
+      <div class="sb-guide-card">
+        <div class="sb-guide-icon">🥩</div>
+        <div class="sb-guide-title">Protein for Strength Athletes</div>
+        <p class="sb-guide-blurb">
+          Most athletes underestimate protein needs during hard training blocks.
+          The research is clear: adaptation stalls when intake drops below the
+          sweet spot, and more isn't always better.
+        </p>
+        <!-- Animated stat bars -->
+        <div style="margin-top:4px;">
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Minimum effective dose</span>
+              <span class="sb-stat-value">1.6 g/kg</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill" data-fill="58"></div></div>
+          </div>
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Optimal range (trained)</span>
+              <span class="sb-stat-value">2.0–2.2 g/kg</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill" data-fill="78"></div></div>
+          </div>
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Ceiling (diminishing return)</span>
+              <span class="sb-stat-value">3.1 g/kg</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill" data-fill="100" style="--bar-fill:100%"></div></div>
+          </div>
+        </div>
+        <div class="sb-guide-disclaimer">Numbers are teaching anchors, not prescriptions. Your targets are individual.</div>
+        <div class="sb-guide-cta">Read Guide →</div>
+      </div>
+
+      <!-- Ergogenics Guide -->
+      <div class="sb-guide-card">
+        <div class="sb-guide-icon">⚡</div>
+        <div class="sb-guide-title">Ergogenics That Actually Work</div>
+        <p class="sb-guide-blurb">
+          The supplement industry is full of noise. Only a handful of compounds
+          have robust, replicated evidence. Here's what the literature actually supports
+          for competitive athletes.
+        </p>
+        <div style="margin-top:4px;">
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Creatine monohydrate</span>
+              <span class="sb-stat-value">Evidence A</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill green" data-fill="95"></div></div>
+          </div>
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Caffeine (3–6 mg/kg)</span>
+              <span class="sb-stat-value">Evidence A</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill green" data-fill="90"></div></div>
+          </div>
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Beta-alanine (high intensity)</span>
+              <span class="sb-stat-value">Evidence B</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill amber" data-fill="70"></div></div>
+          </div>
+        </div>
+        <div class="sb-guide-disclaimer">Evidence grading follows ISSN position stand methodology.</div>
+        <div class="sb-guide-cta">Read Guide →</div>
+      </div>
+
+      <!-- Carbohydrates Guide -->
+      <div class="sb-guide-card">
+        <div class="sb-guide-icon">🌾</div>
+        <div class="sb-guide-title">Carbohydrate Timing & Intensity</div>
+        <p class="sb-guide-blurb">
+          Carbs aren't the enemy — mistimed carbs are. Pre-workout loading,
+          intra-workout fueling, and post-workout replenishment each have distinct
+          windows and dose thresholds that matter.
+        </p>
+        <div style="margin-top:4px;">
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Pre-workout (3–4 hrs out)</span>
+              <span class="sb-stat-value">3–4 g/kg</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill steel" data-fill="75"></div></div>
+          </div>
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Intra-workout (&gt;75 min)</span>
+              <span class="sb-stat-value">30–60 g/hr</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill steel" data-fill="55"></div></div>
+          </div>
+          <div class="sb-stat-row">
+            <div class="sb-stat-label">
+              <span class="sb-stat-name">Post-workout (0–2 hrs)</span>
+              <span class="sb-stat-value">1–1.2 g/kg</span>
+            </div>
+            <div class="sb-bar-track"><div class="sb-bar-fill steel" data-fill="42"></div></div>
+          </div>
+        </div>
+        <div class="sb-guide-disclaimer">Numbers are teaching anchors, not prescriptions. Your targets are individual.</div>
+        <div class="sb-guide-cta">Read Guide →</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="sb-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     PRICING
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="sb-section-outer alt" id="pricing">
+  <div class="sb-section" style="text-align:center;">
+    <div class="sb-section-label">Pricing</div>
+    <h2 class="sb-section-title">Simple Access During the PoC</h2>
+    <p class="sb-section-sub" style="margin: 0 auto 40px; text-align:center;">
+      One tier. Everything included. Pricing will expand when we graduate from PoC.
+    </p>
+    <div class="sb-pricing-card">
+      <div class="sb-pricing-badge">Early Access</div>
+      <div class="sb-pricing-name">Stonebound PoC Pass</div>
+      <div class="sb-pricing-amount">$29</div>
+      <div class="sb-pricing-period">per month · cancel anytime</div>
+      <ul class="sb-pricing-features">
+        <li>Wearable sync (WHOOP, Polar, Garmin)</li>
+        <li>Load-adjusted daily macro targets</li>
+        <li>Full evidence-based guide library</li>
+        <li>Supplement tracking &amp; analysis</li>
+        <li>Coach dashboard (admin role)</li>
+        <li>Direct feedback line to the build team</li>
+      </ul>
+      <a id="pricingBtn" href="#contact" class="btn btn-primary" style="width:100%;">Get Started</a>
+      <p style="font-size:0.75rem;color:var(--muted);margin-top:14px;">
+        Payment link coming soon — drop us a note below to be first in line.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="sb-divider"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     CONTACT
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="sb-section-outer" id="contact">
+  <div class="sb-section">
+    <div class="sb-section-label">Get In Touch</div>
+    <h2 class="sb-section-title">Questions? Want Early Access?</h2>
+    <p class="sb-section-sub" style="margin-bottom:36px;">
+      We read every message. Coaches and athletes who reach out now get white-glove
+      onboarding when we open the doors.
+    </p>
+    <form class="sb-form" id="contactForm" onsubmit="submitInquiry(event)">
+      <div class="sb-form-row">
+        <input class="sb-input" type="text"  id="cName"  placeholder="Your name"  required />
+        <input class="sb-input" type="email" id="cEmail" placeholder="Email address" required />
+      </div>
+      <select class="sb-input" id="cCategory">
+        <option value="general">General inquiry</option>
+        <option value="early_access">Early access</option>
+        <option value="institution">Team / institution</option>
+        <option value="partnership">Partnership</option>
+        <option value="technical">Technical question</option>
+      </select>
+      <input class="sb-input" type="text" id="cSubject" placeholder="Subject" required />
+      <textarea class="sb-input" id="cMessage" placeholder="Your message…" required></textarea>
+      <button type="submit" id="submitBtn" class="btn btn-primary" style="align-self:flex-start;">Send Message</button>
+    </form>
+    <div id="formSuccess" style="display:none;margin-top:20px;padding:16px 20px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:10px;color:var(--green);font-size:0.9rem;">
+      ✓ Message sent! We'll be in touch soon.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     FOOTER
+     ══════════════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-brand">STONEBOUND</div>
+  <div class="footer-links">
+    <a href="#features">Features</a>
+    <a href="#guides">Guides</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+    <a href="stonebound-athlete-profile.html">Athlete Profile</a>
+    <a href="stonebound-admin.html">Admin</a>
+  </div>
+  <div class="footer-copy">
+    © 2025 Stonebound LLC. All rights reserved.
+    Numbers in guides are teaching anchors, not medical or dietary prescriptions.
+  </div>
+</footer>
+
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════════════════════════════════════════════
+     SCRIPTS
+     ══════════════════════════════════════════════════════════════════════ -->
+<script src="stonebound-hub.js"></script>
+<script src="stonebound-visuals.js"></script>
+<script>
+;(function () {
+  'use strict'
+
+  const cfg = window.STONEBOUND_CONFIG
+  const { createClient } = supabase
+  const sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey)
+
+  // ── Wire Stripe payment link ─────────────────────────────────────────────
+  function wireStripeLinks () {
+    const url = cfg.stripePaymentLinkPoCPass
+    if (url && url !== 'REPLACE_ME') {
+      const heroBtn = document.getElementById('heroStripeBtn')
+      const pricingBtn = document.getElementById('pricingBtn')
+      if (heroBtn)    { heroBtn.href = url; heroBtn.target = '_blank'; heroBtn.rel = 'noopener' }
+      if (pricingBtn) { pricingBtn.href = url; pricingBtn.target = '_blank'; pricingBtn.rel = 'noopener'
+                        pricingBtn.textContent = 'Subscribe — $29/mo'
+                        pricingBtn.nextElementSibling.style.display = 'none' }
+    }
+  }
+
+  // ── Toast helper ─────────────────────────────────────────────────────────
+  function toast (msg, type) {
+    const el = document.getElementById('toast')
+    el.textContent = msg
+    el.className = type || 'success'
+    el.style.display = 'block'
+    setTimeout(function () { el.style.display = 'none' }, 4000)
+  }
+
+  // ── Contact form → Supabase inquiries ────────────────────────────────────
+  window.submitInquiry = async function (e) {
+    e.preventDefault()
+    const btn = document.getElementById('submitBtn')
+    btn.disabled = true
+    btn.textContent = 'Sending…'
+
+    const payload = {
+      name:       document.getElementById('cName').value.trim(),
+      email:      document.getElementById('cEmail').value.trim(),
+      category:   document.getElementById('cCategory').value,
+      subject:    document.getElementById('cSubject').value.trim(),
+      message:    document.getElementById('cMessage').value.trim(),
+      priority:   'normal',
+      status:     'open',
+    }
+
+    const { error } = await sb.from('inquiries').insert(payload)
+
+    btn.disabled = false
+    btn.textContent = 'Send Message'
+
+    if (error) {
+      console.error('Inquiry insert error:', error)
+      toast('Something went wrong. Please try again.', 'error')
+      return
+    }
+
+    document.getElementById('contactForm').style.display = 'none'
+    document.getElementById('formSuccess').style.display = 'block'
+  }
+
+  // ── Splash dismiss ───────────────────────────────────────────────────────
+  function dismissSplash () {
+    const splash = document.getElementById('sbSplash')
+    splash.classList.add('hidden')
+    document.documentElement.classList.remove('sb-splash-lock')
+    setTimeout(function () { splash.style.display = 'none' }, 550)
+  }
+
+  // ── Init ─────────────────────────────────────────────────────────────────
+  function init () {
+    wireStripeLinks()
+    // Dismiss splash after bar animation (~1.4s) + small buffer
+    setTimeout(dismissSplash, 1700)
+    // Also dismiss on click/tap for impatient users
+    document.getElementById('sbSplash').addEventListener('click', dismissSplash)
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init)
+  } else {
+    init()
+  }
+})()
+</script>
+
+</body>
+</html>

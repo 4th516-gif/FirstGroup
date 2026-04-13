@@ -1,0 +1,33 @@
+# Stonebound — Netlify Configuration
+# Production: https://stonebound.netlify.app
+# Repo: 4th516-gif/firstgroup  Branch: claude/stonebound-poc-handoff-YWSku
+
+[build]
+  publish = "website"
+
+# ── Security Headers ──────────────────────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options           = "DENY"
+    X-Content-Type-Options    = "nosniff"
+    X-XSS-Protection          = "1; mode=block"
+    Referrer-Policy           = "strict-origin-when-cross-origin"
+    Permissions-Policy        = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Content-Security-Policy   = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://api.stripe.com https://api.prod.whoop.com https://flow.polar.com; frame-src https://js.stripe.com; img-src 'self' data: https:;"
+
+# ── Cache immutable assets ────────────────────────────────────────────────────
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ── Legacy /fueliq-* → /stonebound-* 301 redirects ───────────────────────────
+# Handled in website/_redirects (higher priority than netlify.toml redirects)
+# See: website/_redirects for the /fueliq-* wildcard rule

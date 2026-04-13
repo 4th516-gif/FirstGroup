@@ -11,7 +11,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const WHOOP_CLIENT_ID = Deno.env.get('WHOOP_CLIENT_ID')!        // 47f70a90-26dd-4885-926d-bd9256724d73
 const WHOOP_CLIENT_SECRET = Deno.env.get('WHOOP_CLIENT_SECRET')!
-const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://ftpiq.netlify.app'
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://stonebound.netlify.app'
 
 const WHOOP_TOKEN_URL = 'https://api.prod.whoop.com/oauth/oauth2/token'
 const WHOOP_PROFILE_URL = 'https://api.prod.whoop.com/developer/v1/activity/profile'
@@ -25,7 +25,7 @@ Deno.serve(async (req: Request) => {
   // WHOOP denied access
   if (error) {
     console.error('WHOOP OAuth error:', error)
-    return Response.redirect(`${SITE_URL}/fueliq-athlete-profile.html?whoop=denied`, 302)
+    return Response.redirect(`${SITE_URL}/stonebound-athlete-profile.html?whoop=denied`, 302)
   }
 
   if (!code || !state) {
@@ -48,7 +48,7 @@ Deno.serve(async (req: Request) => {
   if (!tokenRes.ok) {
     const errText = await tokenRes.text()
     console.error('Token exchange failed:', errText)
-    return Response.redirect(`${SITE_URL}/fueliq-athlete-profile.html?whoop=error`, 302)
+    return Response.redirect(`${SITE_URL}/stonebound-athlete-profile.html?whoop=error`, 302)
   }
 
   const tokens = await tokenRes.json() as {
@@ -94,14 +94,14 @@ Deno.serve(async (req: Request) => {
 
   if (dbError) {
     console.error('DB error saving WHOOP connection:', dbError.message)
-    return Response.redirect(`${SITE_URL}/fueliq-athlete-profile.html?whoop=error`, 302)
+    return Response.redirect(`${SITE_URL}/stonebound-athlete-profile.html?whoop=error`, 302)
   }
 
   console.log(`WHOOP connected for athlete ${state}, WHOOP user ${whoopUserId}`)
 
   // Redirect back to athlete profile with success flag
   return Response.redirect(
-    `${SITE_URL}/fueliq-athlete-profile.html?whoop=connected`,
+    `${SITE_URL}/stonebound-athlete-profile.html?whoop=connected`,
     302
   )
 })

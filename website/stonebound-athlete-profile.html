@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Athlete Profile — Stonebound</title>
+
+  <!-- Config must load before Supabase JS -->
+  <script src="site-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="stonebound-theme.css" />
+
+  <style>
+    /* ── Layout ── */
+    .page { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+    .grid-2 { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Cards ── */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+    .card-title { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 16px; }
+
+    /* ── Profile sidebar ── */
+    .profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 700; color: var(--ink-0); margin-bottom: 12px; }
+    .profile-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 4px; }
+    .profile-sub { color: var(--muted); font-size: 0.85rem; margin-bottom: 8px; }
+    .plan-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(201,168,76,.15); border: 1px solid rgba(201,168,76,.3); color: var(--gold); padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 16px; }
+    .profile-meta { display: flex; flex-direction: column; gap: 8px; }
+    .meta-row { display: flex; justify-content: space-between; font-size: 0.82rem; }
+    .meta-row span:first-child { color: var(--muted); }
+
+    /* ── Nutrition macros ── */
+    .macro-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .macro-card { background: var(--surface2); border-radius: 8px; padding: 12px; text-align: center; }
+    .macro-val { font-size: 1.4rem; font-weight: 700; }
+    .macro-label { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+    .macro-card.calories .macro-val { color: var(--amber); }
+    .macro-card.protein  .macro-val { color: var(--gold); }
+    .macro-card.carbs    .macro-val { color: var(--green); }
+    .macro-card.fat      .macro-val { color: #f97316; }
+
+    /* ── Wearables ── */
+    .wearable-grid { display: flex; flex-direction: column; gap: 12px; }
+    .wearable-row { display: flex; align-items: center; gap: 14px; padding: 14px; background: var(--surface2); border-radius: 10px; border: 1px solid var(--border); }
+    .wearable-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .wearable-icon.whoop  { background: rgba(255, 59, 59, 0.15); }
+    .wearable-icon.polar  { background: rgba(212, 22, 60, 0.15); }
+    .wearable-icon.garmin { background: rgba( 0,125,195, 0.15); }
+    .wearable-info { flex: 1; }
+    .wearable-name { font-size: 0.9rem; font-weight: 600; }
+    .wearable-status { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+    .wearable-status.connected { color: var(--green); }
+    .btn-connect { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--gold); background: transparent; color: var(--gold); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all .2s; white-space: nowrap; font-family: inherit; }
+    .btn-connect:hover { background: var(--gold); color: var(--ink-0); }
+    .btn-connect:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-disconnect { padding: 7px 16px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer; transition: all .2s; font-family: inherit; }
+    .btn-disconnect:hover { border-color: var(--red); color: var(--red); }
+    .badge-pending { font-size: 0.7rem; color: var(--amber); background: rgba(245,158,11,.15); border: 1px solid rgba(245,158,11,.3); padding: 3px 8px; border-radius: 20px; }
+
+    /* ── Activity list ── */
+    .activity-list { display: flex; flex-direction: column; gap: 10px; }
+    .activity-row { display: grid; grid-template-columns: 80px 1fr 90px 80px; gap: 8px; align-items: center; padding: 10px 12px; background: var(--surface2); border-radius: 8px; font-size: 0.82rem; }
+    .activity-date { color: var(--muted); }
+    .activity-strain { font-weight: 600; color: var(--amber); }
+
+    /* ── Supplements ── */
+    .supp-list { display: flex; flex-direction: column; gap: 8px; }
+    .supp-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: var(--surface2); border-radius: 8px; font-size: 0.82rem; }
+    .supp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 8px; }
+    .supp-dose { color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="sb-nav hub-glow">
+  <a href="index.html" class="sb-brand">STONEBOUND</a>
+  <div class="sb-nav-links">
+    <a href="index.html">Home</a>
+    <a href="stonebound-athlete-profile.html" style="color:var(--text)">My Profile</a>
+    <button class="btn btn-ghost" id="btnSignout" style="padding:6px 14px;font-size:0.8rem;">Sign Out</button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="grid-2">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Profile Card -->
+      <div class="card">
+        <div class="profile-avatar" id="avatarInitial">?</div>
+        <div class="profile-name" id="profileName">Loading…</div>
+        <div class="profile-sub" id="profileSport">—</div>
+        <div class="plan-badge" id="planBadge">⚡ Free</div>
+        <div class="profile-meta" id="profileMeta"></div>
+      </div>
+
+      <!-- Wearable Devices -->
+      <div class="card">
+        <div class="card-title">Connected Devices</div>
+        <div class="wearable-grid">
+          <div class="wearable-row">
+            <div class="wearable-icon whoop">⚡</div>
+            <div class="wearable-info">
+              <div class="wearable-name">WHOOP</div>
+              <div class="wearable-status" id="whoopStatus">Checking…</div>
+            </div>
+            <button class="btn-connect" id="btnWhoop" onclick="connectWhoop()">Connect</button>
+          </div>
+          <div class="wearable-row">
+            <div class="wearable-icon polar">🔴</div>
+            <div class="wearable-info">
+              <div class="wearable-name">Polar</div>
+              <div class="wearable-status" id="polarStatus">Checking…</div>
+            </div>
+            <button class="btn-connect" id="btnPolar" onclick="connectPolar()">Connect</button>
+          </div>
+          <div class="wearable-row">
+            <div class="wearable-icon garmin">🟦</div>
+            <div class="wearable-info">
+              <div class="wearable-name">Garmin</div>
+              <div class="wearable-status">Approval pending</div>
+            </div>
+            <span class="badge-pending">Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Supplements -->
+      <div class="card">
+        <div class="card-title">Active Supplements</div>
+        <div class="supp-list" id="suppList"><div class="sb-empty">Loading…</div></div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT COLUMN ── -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+
+      <!-- Today's Nutrition -->
+      <div class="card">
+        <div class="card-title">Today's Nutrition</div>
+        <div class="macro-grid">
+          <div class="macro-card calories"><div class="macro-val" id="macroCalories">—</div><div class="macro-label">Calories</div></div>
+          <div class="macro-card protein"><div class="macro-val" id="macroProtein">—</div><div class="macro-label">Protein (g)</div></div>
+          <div class="macro-card carbs"><div class="macro-val" id="macroCarbs">—</div><div class="macro-label">Carbs (g)</div></div>
+          <div class="macro-card fat"><div class="macro-val" id="macroFat">—</div><div class="macro-label">Fat (g)</div></div>
+        </div>
+        <div style="margin-top:16px;">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:4px;">
+            <span>Calorie target</span><span id="calorieAdherence">—%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="calorieBar" style="width:0%"></div></div>
+        </div>
+        <div style="margin-top:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);margin-bottom:4px;">
+            <span>Protein target</span><span id="proteinAdherence">—%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="proteinBar" style="width:0%;background:var(--gold)"></div></div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-title">Recent Activity (Last 7 Days)</div>
+        <div id="activityList"><div class="sb-empty">Loading…</div></div>
+      </div>
+
+      <!-- Biometrics -->
+      <div class="card">
+        <div class="card-title">Latest Biometrics</div>
+        <div id="biometrics" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+          <div class="sb-empty" style="grid-column:1/-1">Loading…</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const { supabaseUrl, supabaseAnonKey, siteUrl, whoopClientId, polarClientId } = window.STONEBOUND_CONFIG
+const { createClient } = supabase
+const sb = createClient(supabaseUrl, supabaseAnonKey)
+
+let athleteId = null
+
+// ── Toast ────────────────────────────────────────────────────────────────
+function toast (msg, type) {
+  const el = document.getElementById('toast')
+  el.textContent = msg; el.className = type || 'success'; el.style.display = 'block'
+  setTimeout(function () { el.style.display = 'none' }, 4000)
+}
+
+// ── OAuth return params ───────────────────────────────────────────────────
+function checkOAuthReturn () {
+  const p = new URLSearchParams(window.location.search)
+  if (p.get('whoop') === 'connected') toast('WHOOP connected successfully!')
+  if (p.get('whoop') === 'denied')    toast('WHOOP connection cancelled.', 'error')
+  if (p.get('whoop') === 'error')     toast('WHOOP connection failed. Try again.', 'error')
+  if (p.get('polar') === 'connected') toast('Polar connected successfully!')
+  if (p.get('polar') === 'denied')    toast('Polar connection cancelled.', 'error')
+  if (p.get('polar') === 'error')     toast('Polar connection failed. Try again.', 'error')
+  if (p.toString()) window.history.replaceState({}, '', window.location.pathname)
+}
+
+// ── OAuth connect ─────────────────────────────────────────────────────────
+function connectWhoop () {
+  if (!athleteId) return toast('Please sign in first.', 'error')
+  const params = new URLSearchParams({
+    client_id:     whoopClientId,
+    response_type: 'code',
+    redirect_uri:  siteUrl + '/auth/whoop/callback',
+    scope:         'read:recovery read:cycles read:sleep read:workout read:profile read:body_measurement',
+    state:         athleteId,
+  })
+  window.location.href = 'https://api.prod.whoop.com/oauth/oauth2/auth?' + params
+}
+
+function connectPolar () {
+  if (!athleteId) return toast('Please sign in first.', 'error')
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id:     polarClientId,
+    redirect_uri:  siteUrl + '/auth/polar/callback',
+    state:         athleteId,
+  })
+  window.location.href = 'https://flow.polar.com/oauth2/authorization?' + params
+}
+
+// ── Load profile ──────────────────────────────────────────────────────────
+async function loadProfile (uid) {
+  const { data } = await sb.from('profiles').select('*').eq('id', uid).single()
+  if (!data) return
+  const initials = (data.full_name || data.email || '?').charAt(0).toUpperCase()
+  document.getElementById('avatarInitial').textContent = initials
+  document.getElementById('profileName').textContent = data.full_name || data.email
+  document.getElementById('profileSport').textContent = [data.sport, data.position].filter(Boolean).join(' · ') || 'No sport set'
+  document.getElementById('planBadge').textContent = '⚡ ' + ((data.subscription_plan || 'free').charAt(0).toUpperCase() + (data.subscription_plan || 'free').slice(1))
+  const meta = [
+    ['Institution', data.institution || '—'],
+    ['Division', data.ncaa_division || '—'],
+    ['Season Phase', data.season_phase || '—'],
+    ['Grad Year', data.grad_year || '—'],
+    ['Timezone', data.timezone || '—'],
+  ]
+  document.getElementById('profileMeta').innerHTML = meta.map(function (r) {
+    return '<div class="meta-row"><span>' + r[0] + '</span><span>' + r[1] + '</span></div>'
+  }).join('')
+}
+
+// ── Wearable status ───────────────────────────────────────────────────────
+async function loadWearables (uid) {
+  const { data } = await sb.from('wearable_connections')
+    .select('device_type, device_label, last_synced_at, is_active')
+    .eq('athlete_id', uid).eq('is_active', true)
+  const connected = new Map((data || []).map(function (d) { return [d.device_type, d] }))
+
+  function updateDevice (type, statusEl, btnEl) {
+    const conn = connected.get(type)
+    if (conn) {
+      statusEl.textContent = 'Connected · Last sync ' + (conn.last_synced_at ? new Date(conn.last_synced_at).toLocaleDateString() : 'never')
+      statusEl.className = 'wearable-status connected'
+      btnEl.textContent = 'Disconnect'
+      btnEl.className = 'btn-disconnect'
+      btnEl.onclick = function () { disconnectDevice(uid, type) }
+    } else {
+      statusEl.textContent = 'Not connected'
+      statusEl.className = 'wearable-status'
+    }
+  }
+
+  updateDevice('whoop', document.getElementById('whoopStatus'), document.getElementById('btnWhoop'))
+  updateDevice('polar', document.getElementById('polarStatus'), document.getElementById('btnPolar'))
+}
+
+async function disconnectDevice (uid, type) {
+  if (!confirm('Disconnect ' + type + '? This will stop syncing your data.')) return
+  await sb.from('wearable_connections').update({ is_active: false }).eq('athlete_id', uid).eq('device_type', type)
+  toast(type + ' disconnected.')
+  loadWearables(uid)
+}
+
+// ── Today's nutrition ─────────────────────────────────────────────────────
+async function loadNutrition (uid) {
+  const today = new Date().toISOString().split('T')[0]
+  const { data: summary } = await sb.from('daily_summaries').select('*').eq('athlete_id', uid).eq('summary_date', today).single()
+  const { data: targets } = await sb.from('nutrition_targets').select('calories_kcal, protein_g').eq('athlete_id', uid).lte('effective_from', today).order('effective_from', { ascending: false }).limit(1).single()
+
+  if (summary) {
+    document.getElementById('macroCalories').textContent = Math.round(summary.total_calories || 0)
+    document.getElementById('macroProtein').textContent  = Math.round(summary.total_protein_g || 0)
+    document.getElementById('macroCarbs').textContent    = Math.round(summary.total_carbs_g || 0)
+    document.getElementById('macroFat').textContent      = Math.round(summary.total_fat_g || 0)
+    if (targets) {
+      const calPct = Math.min(100, Math.round(((summary.total_calories || 0) / targets.calories_kcal) * 100))
+      const proPct = Math.min(100, Math.round(((summary.total_protein_g || 0) / targets.protein_g) * 100))
+      document.getElementById('calorieAdherence').textContent = calPct + '%'
+      document.getElementById('proteinAdherence').textContent = proPct + '%'
+      document.getElementById('calorieBar').style.width = calPct + '%'
+      document.getElementById('proteinBar').style.width = proPct + '%'
+    }
+  } else {
+    ['macroCalories','macroProtein','macroCarbs','macroFat'].forEach(function (id) { document.getElementById(id).textContent = '0' })
+  }
+}
+
+// ── Recent activity ───────────────────────────────────────────────────────
+async function loadActivity (uid) {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString().split('T')[0]
+  const { data } = await sb.from('energy_expenditure')
+    .select('recorded_date, active_kcal, strain_score, recovery_score, sleep_hours, source')
+    .eq('athlete_id', uid).gte('recorded_date', sevenDaysAgo).order('recorded_date', { ascending: false }).limit(7)
+  const el = document.getElementById('activityList')
+  if (!data || !data.length) { el.innerHTML = '<div class="sb-empty">No activity data yet. Connect a wearable above.</div>'; return }
+  el.innerHTML = '<div class="activity-list">' + data.map(function (r) {
+    const dateStr  = new Date(r.recorded_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    const primary  = r.strain_score != null ? r.strain_score.toFixed(1) + ' strain'
+                   : r.recovery_score != null ? r.recovery_score + '% rec'
+                   : r.sleep_hours != null ? r.sleep_hours + 'h sleep' : '—'
+    return '<div class="activity-row">'
+      + '<span class="activity-date">' + dateStr + '</span>'
+      + '<span style="color:var(--muted);font-size:.75rem">' + (r.source || '').toUpperCase() + '</span>'
+      + '<span class="activity-strain">' + primary + '</span>'
+      + '<span>' + (r.active_kcal != null ? r.active_kcal + ' kcal' : '—') + '</span>'
+      + '</div>'
+  }).join('') + '</div>'
+}
+
+// ── Supplements ───────────────────────────────────────────────────────────
+async function loadSupplements (uid) {
+  const { data } = await sb.from('athlete_supplements')
+    .select('custom_name, dose_amount, dose_unit, timing, supplement_db_id, supplements_db(name)')
+    .eq('athlete_id', uid).eq('is_active', true).limit(6)
+  const el = document.getElementById('suppList')
+  if (!data || !data.length) { el.innerHTML = '<div class="sb-empty">No supplements tracked.</div>'; return }
+  el.innerHTML = data.map(function (s) {
+    const name = s.custom_name || (s.supplements_db && s.supplements_db.name) || 'Unknown'
+    return '<div class="supp-row"><span><span class="supp-dot"></span>' + name + '</span><span class="supp-dose">' + s.dose_amount + ' ' + s.dose_unit + (s.timing ? ' · ' + s.timing : '') + '</span></div>'
+  }).join('')
+}
+
+// ── Biometrics ────────────────────────────────────────────────────────────
+async function loadBiometrics (uid) {
+  const { data } = await sb.from('biometrics')
+    .select('weight_kg, body_fat_pct, lean_mass_kg, rmr_kcal, vo2max_est, hrv_ms, assessed_at')
+    .eq('athlete_id', uid).order('assessed_at', { ascending: false }).limit(1).single()
+  const el = document.getElementById('biometrics')
+  if (!data) { el.innerHTML = '<div class="sb-empty" style="grid-column:1/-1">No biometric data recorded.</div>'; return }
+  const metrics = [
+    ['Weight',    data.weight_kg   ? data.weight_kg + ' kg'   : '—'],
+    ['Body Fat',  data.body_fat_pct ? data.body_fat_pct + '%'  : '—'],
+    ['Lean Mass', data.lean_mass_kg ? data.lean_mass_kg + ' kg': '—'],
+    ['RMR',       data.rmr_kcal    ? data.rmr_kcal + ' kcal'  : '—'],
+    ['VO₂ Max',   data.vo2max_est  || '—'],
+    ['HRV',       data.hrv_ms      ? data.hrv_ms + ' ms'      : '—'],
+  ]
+  el.innerHTML = metrics.map(function (m) {
+    return '<div class="macro-card" style="text-align:left;"><div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">' + m[0] + '</div><div style="font-size:1.1rem;font-weight:700">' + m[1] + '</div></div>'
+  }).join('')
+}
+
+// ── Sign out / init ───────────────────────────────────────────────────────
+document.getElementById('btnSignout').addEventListener('click', async function () {
+  await sb.auth.signOut()
+  window.location.href = 'index.html'
+})
+
+async function init () {
+  checkOAuthReturn()
+  const { data: { session } } = await sb.auth.getSession()
+  if (!session) { window.location.href = 'index.html?auth=required'; return }
+  athleteId = session.user.id
+  await Promise.all([
+    loadProfile(athleteId),
+    loadWearables(athleteId),
+    loadNutrition(athleteId),
+    loadActivity(athleteId),
+    loadSupplements(athleteId),
+    loadBiometrics(athleteId),
+  ])
+}
+
+init()
+</script>
+</body>
+</html>

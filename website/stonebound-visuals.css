@@ -1,0 +1,262 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Stonebound Visuals  —  Animated stat bars, chart rows, guide cards
+   Requires: stonebound-theme.css for tokens
+   Activates: when stonebound-visuals.js sets .filled on .sb-bar-fill elements
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* ── Stat bar row ───────────────────────────────────────────────────────── */
+.sb-stat-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.sb-stat-row:last-child { margin-bottom: 0; }
+
+.sb-stat-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.82rem;
+}
+
+.sb-stat-name  { color: var(--text-dim, #b8b0a0); font-weight: 500; }
+.sb-stat-value { color: var(--gold); font-weight: 700; font-size: 0.9rem; }
+
+/* ── Animated bar ───────────────────────────────────────────────────────── */
+.sb-bar-track {
+  height: 7px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sb-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0;                              /* start at 0, JS sets --bar-fill  */
+  background: linear-gradient(90deg, var(--gold-dim, #8b6e2a), var(--gold, #c9a84c));
+  transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: width;
+}
+
+.sb-bar-fill.filled {
+  width: var(--bar-fill, 0%);
+}
+
+/* Colour variants */
+.sb-bar-fill.green  { background: linear-gradient(90deg, #059669, var(--green, #10b981)); }
+.sb-bar-fill.steel  { background: linear-gradient(90deg, #4b6d8c, var(--steel, #7c9cc0)); }
+.sb-bar-fill.ember  { background: linear-gradient(90deg, #b34720, var(--ember, #d4622a)); }
+.sb-bar-fill.amber  { background: linear-gradient(90deg, #c57c05, var(--amber, #f59e0b)); }
+
+/* ── Guide preview cards ────────────────────────────────────────────────── */
+.sb-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.sb-guide-card {
+  background: var(--surface, #12141a);
+  border: 1px solid var(--glass-border, rgba(255,255,255,.08));
+  border-radius: var(--radius-lg, 20px);
+  padding: 24px;
+  transition: border-color 0.2s, transform 0.2s;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sb-guide-card:hover {
+  border-color: rgba(201, 168, 76, 0.3);
+  transform: translateY(-2px);
+}
+
+.sb-guide-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+}
+
+.sb-guide-title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text, #e8e3d8);
+  line-height: 1.3;
+}
+
+.sb-guide-blurb {
+  font-size: 0.85rem;
+  color: var(--muted, #6b7280);
+  line-height: 1.65;
+  flex: 1;
+}
+
+.sb-guide-disclaimer {
+  font-size: 0.72rem;
+  color: var(--muted, #6b7280);
+  font-style: italic;
+  opacity: 0.8;
+  border-top: 1px solid var(--glass-border, rgba(255,255,255,.08));
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+.sb-guide-cta {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--gold, #c9a84c);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Feature cards grid ─────────────────────────────────────────────────── */
+.sb-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.sb-feature-card {
+  background: var(--glass-bg, rgba(255,255,255,.04));
+  border: 1px solid var(--glass-border, rgba(255,255,255,.08));
+  border-radius: var(--radius, 12px);
+  padding: 22px;
+  transition: border-color 0.2s;
+}
+
+.sb-feature-card:hover {
+  border-color: rgba(201, 168, 76, 0.25);
+}
+
+.sb-feature-icon {
+  font-size: 1.6rem;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.sb-feature-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text, #e8e3d8);
+  margin-bottom: 8px;
+}
+
+.sb-feature-desc {
+  font-size: 0.85rem;
+  color: var(--muted, #6b7280);
+  line-height: 1.65;
+}
+
+/* ── Pricing card ───────────────────────────────────────────────────────── */
+.sb-pricing-card {
+  background: var(--glass-bg, rgba(255,255,255,.04));
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: var(--radius-xl, 28px);
+  padding: 36px 32px;
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+}
+
+.sb-pricing-badge {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--gold, #c9a84c);
+  color: var(--ink-0, #0b0c10);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.sb-pricing-name {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text, #e8e3d8);
+  margin-bottom: 8px;
+}
+
+.sb-pricing-amount {
+  font-family: 'Cinzel', serif;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--gold, #c9a84c);
+  line-height: 1;
+  margin: 16px 0 4px;
+}
+
+.sb-pricing-period {
+  font-size: 0.85rem;
+  color: var(--muted, #6b7280);
+  margin-bottom: 24px;
+}
+
+.sb-pricing-features {
+  list-style: none;
+  text-align: left;
+  margin-bottom: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sb-pricing-features li {
+  font-size: 0.88rem;
+  color: var(--text-dim, #b8b0a0);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sb-pricing-features li::before {
+  content: '✦';
+  color: var(--gold, #c9a84c);
+  font-size: 0.6rem;
+  flex-shrink: 0;
+}
+
+/* ── Hero glow orb ──────────────────────────────────────────────────────── */
+.sb-hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sb-hero-orb-gold {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+  top: -120px;
+  right: -80px;
+}
+
+.sb-hero-orb-steel {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(124,156,192,0.08) 0%, transparent 70%);
+  bottom: -80px;
+  left: -60px;
+}

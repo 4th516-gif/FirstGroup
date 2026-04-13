@@ -1,3 +1,7 @@
+# ── Legacy /fueliq-* → /stonebound-* 301 redirects ──────────
+# Catches /fueliq-admin.html, /fueliq-athlete-profile.html, etc.
+/fueliq-*  /stonebound-:splat  301
+
 # ── OAuth Callback Proxies ───────────────────────────────────
 # Forwards OAuth callbacks (with ?code & ?state) to Supabase edge functions
 # The 200 proxy preserves query params and lets Supabase handle the redirect back

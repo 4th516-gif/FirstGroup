@@ -1,0 +1,404 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Stonebound Design System  —  Dark glass  ·  Cinzel headings  ·  Inter body
+   ───────────────────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Cinzel+Decorative:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── Ink tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --ink-0:        #0b0c10;
+  --ink-1:        #12141a;
+  --ink-2:        #1a1d26;
+  --ink-3:        #22263300;   /* transparent — for gradient stops */
+
+  --glass-bg:     rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-hover:  rgba(255, 255, 255, 0.07);
+
+  /* ── Brand palette ── */
+  --gold:         #c9a84c;
+  --gold-dim:     #8b6e2a;
+  --gold-glow:    rgba(201, 168, 76, 0.25);
+  --steel:        #7c9cc0;
+  --earth:        #a07050;
+  --ember:        #d4622a;
+  --green:        #10b981;
+  --red:          #ef4444;
+  --amber:        #f59e0b;
+  --blue:         #3b82f6;
+
+  /* ── Semantic aliases ── */
+  --bg:           var(--ink-0);
+  --surface:      var(--ink-1);
+  --surface2:     var(--ink-2);
+  --border:       var(--glass-border);
+  --primary:      var(--gold);
+  --text:         #e8e3d8;
+  --text-dim:     #b8b0a0;
+  --muted:        #6b7280;
+
+  --radius:       12px;
+  --radius-lg:    20px;
+  --radius-xl:    28px;
+
+  /* ── Hub glow (updated by stonebound-hub.js) ── */
+  --hub-x:        50%;
+  --hub-y:        50%;
+}
+
+/* ── Reset ──────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-dim) var(--ink-1);
+}
+
+/* sb-splash-lock: prevents body from scrolling while splash is visible.
+   Splash itself uses overflow-y: auto so it can scroll internally.        */
+html.sb-splash-lock body {
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── Typography ─────────────────────────────────────────────────────────── */
+h1, h2, h3, h4, .cinzel        { font-family: 'Cinzel', serif; }
+.cinzel-deco                    { font-family: 'Cinzel Decorative', serif; }
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar             { width: 6px; }
+::-webkit-scrollbar-track       { background: var(--ink-1); }
+::-webkit-scrollbar-thumb       { background: var(--gold-dim); border-radius: 3px; }
+
+/* ── Glass surface ──────────────────────────────────────────────────────── */
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass:hover {
+  background: var(--glass-hover);
+  border-color: rgba(201, 168, 76, 0.2);
+}
+
+/* ── Hub glow ───────────────────────────────────────────────────────────── */
+.hub-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.hub-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at var(--hub-x) var(--hub-y),
+    rgba(201, 168, 76, 0.15) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.hub-glow:hover::before { opacity: 1; }
+
+/* ── Nav ────────────────────────────────────────────────────────────────── */
+.sb-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 clamp(16px, 4vw, 48px);
+  background: rgba(11, 12, 16, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.sb-brand {
+  font-family: 'Cinzel Decorative', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.sb-nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.sb-nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.sb-nav-links a:hover { color: var(--text); }
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--ink-0);
+}
+
+.btn-primary:hover {
+  background: #d4b25c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 24px rgba(201, 168, 76, 0.4);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+}
+
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.btn-ghost:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Section helpers ────────────────────────────────────────────────────── */
+.sb-section {
+  padding: clamp(48px, 8vw, 96px) clamp(16px, 4vw, 48px);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sb-section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.sb-section-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.6rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.18;
+  margin-bottom: 16px;
+}
+
+.sb-section-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.75;
+}
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+.sb-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+
+.sb-card-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+/* ── Badges ─────────────────────────────────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.badge.active    { background: rgba(16,185,129,.18); color: var(--green); }
+.badge.trialing  { background: rgba(59,130,246,.18); color: var(--blue); }
+.badge.canceled  { background: rgba(239,68,68,.18);  color: var(--red); }
+.badge.past_due  { background: rgba(245,158,11,.18); color: var(--amber); }
+.badge.free      { background: rgba(107,114,128,.18); color: var(--muted); }
+.badge.open      { background: rgba(239,68,68,.18);  color: var(--red); }
+.badge.resolved  { background: rgba(16,185,129,.18); color: var(--green); }
+.badge.pending   { background: rgba(245,158,11,.18); color: var(--amber); }
+.badge.gold      { background: rgba(201,168,76,.18); color: var(--gold); }
+
+/* ── Tables ─────────────────────────────────────────────────────────────── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+th {
+  text-align: left;
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+td {
+  padding: 11px 12px;
+  border-bottom: 1px solid var(--surface2);
+  vertical-align: middle;
+}
+
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surface2); }
+
+/* ── Filter inputs ──────────────────────────────────────────────────────── */
+.filter-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  outline: none;
+  font-family: inherit;
+}
+
+.filter-input:focus { border-color: var(--gold); }
+select.filter-input option { background: var(--surface2); }
+
+/* ── Toast ──────────────────────────────────────────────────────────────── */
+#toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  z-index: 999;
+  display: none;
+  animation: sbSlideUp 0.3s ease;
+}
+
+#toast.success { background: var(--green); color: #fff; }
+#toast.error   { background: var(--red);   color: #fff; }
+#toast.info    { background: var(--steel);  color: #fff; }
+
+@keyframes sbSlideUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ── Skeleton loading ───────────────────────────────────────────────────── */
+.skeleton {
+  background: var(--surface2);
+  border-radius: 6px;
+  animation: sbPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sbPulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.8; }
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+.sb-empty {
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 32px 0;
+}
+
+/* ── Dividers ───────────────────────────────────────────────────────────── */
+.sb-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-border), transparent);
+}
+
+/* ── Progress bars ──────────────────────────────────────────────────────── */
+.progress-bar {
+  background: var(--surface2);
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--green);
+  transition: width 0.5s ease;
+}
+
+/* ── Responsive helpers ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sb-nav-links { gap: 12px; }
+  .sb-nav-links a { font-size: 0.8rem; }
+}

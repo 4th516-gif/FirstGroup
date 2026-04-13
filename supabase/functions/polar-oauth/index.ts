@@ -11,7 +11,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const POLAR_CLIENT_ID = Deno.env.get('POLAR_CLIENT_ID')!         // e45c4048-9a86-4878-b5bb-5ff897c8188c
 const POLAR_CLIENT_SECRET = Deno.env.get('POLAR_CLIENT_SECRET')! // ac16b6cc-d315-4369-af65-b0b103934933
-const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://ftpiq.netlify.app'
+const SITE_URL = Deno.env.get('SITE_URL') ?? 'https://stonebound.netlify.app'
 
 const POLAR_TOKEN_URL = 'https://polarremote.com/v2/oauth2/token'
 const POLAR_USER_URL = 'https://www.polaraccesslink.com/v3/users'
@@ -24,7 +24,7 @@ Deno.serve(async (req: Request) => {
 
   if (error) {
     console.error('Polar OAuth error:', error)
-    return Response.redirect(`${SITE_URL}/fueliq-athlete-profile.html?polar=denied`, 302)
+    return Response.redirect(`${SITE_URL}/stonebound-athlete-profile.html?polar=denied`, 302)
   }
 
   if (!code || !state) {
@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
   if (!tokenRes.ok) {
     const errText = await tokenRes.text()
     console.error('Polar token exchange failed:', errText)
-    return Response.redirect(`${SITE_URL}/fueliq-athlete-profile.html?polar=error`, 302)
+    return Response.redirect(`${SITE_URL}/stonebound-athlete-profile.html?polar=error`, 302)
   }
 
   const tokens = await tokenRes.json() as {
@@ -101,13 +101,13 @@ Deno.serve(async (req: Request) => {
 
   if (dbError) {
     console.error('DB error saving Polar connection:', dbError.message)
-    return Response.redirect(`${SITE_URL}/fueliq-athlete-profile.html?polar=error`, 302)
+    return Response.redirect(`${SITE_URL}/stonebound-athlete-profile.html?polar=error`, 302)
   }
 
   console.log(`Polar connected for athlete ${state}, Polar user ${polarUserId}`)
 
   return Response.redirect(
-    `${SITE_URL}/fueliq-athlete-profile.html?polar=connected`,
+    `${SITE_URL}/stonebound-athlete-profile.html?polar=connected`,
     302
   )
 })

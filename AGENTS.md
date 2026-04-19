@@ -10,7 +10,7 @@ Research-grounded performance and nutrition platform: static site in `website/` 
 cd website && python3 -m http.server 8080
 ```
 
-Browse `http://localhost:8080/index.html` (landing), `performance.html`, `nutrition.html`, `architecture.html`, `feed.html`, `subscribe.html`.
+Browse `http://localhost:8080/index.html` (landing), `performance.html`, `nutrition.html`, `architecture.html`, `visual-direction.html`, `feed.html`, `subscribe.html`.
 
 ### Configure Supabase
 

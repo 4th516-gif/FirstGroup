@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance Science — Stonebound</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0a0b;
+      --fg: #e8e8ea;
+      --muted: #8b8b93;
+      --amber: #ef9f27;
+      --card: #121214;
+      --border: #2a2a2e;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; min-height: 100vh; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: rgba(10,10,11,0.95); z-index: 10;
+    }
+    .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
+    nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 0.9rem; }
+    nav a:hover { color: var(--fg); }
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 20px 64px; }
+    h1 { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 0.08em; font-size: 2rem; margin-bottom: 8px; }
+    .lede { color: var(--muted); max-width: 65ch; margin-bottom: 28px; }
+    .term { border-bottom: 1px dotted var(--amber); cursor: help; }
+    .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+    @media (min-width: 800px) { .grid.charts { grid-template-columns: 1fr 1fr; } }
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+    }
+    .panel h2 { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1rem; color: var(--amber); margin-bottom: 12px; }
+    .chart-box { height: 260px; position: relative; }
+    .hubs { margin-top: 32px; }
+    details { border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; background: #0e0e10; }
+    summary { cursor: pointer; font-weight: 600; font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.04em; }
+    details p { margin-top: 10px; color: var(--muted); font-size: 0.92rem; }
+    .mono { font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; color: var(--muted); }
+    a.inline { color: var(--amber); }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">Stonebound · Performance</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="nutrition.html">Nutrition</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="subscribe.html">Subscribe</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Stonebound Performance Science</h1>
+    <p class="lede">
+      Hubs P-01–P-11 cover periodization, strength and power, HIIT, force-plate KPIs, biomechanics, RTP, and research literacy.
+      <span data-term="acwr" class="term">ACWR</span> and <span data-term="rsi" class="term">RSI</span> appear throughout load-monitoring content.
+    </p>
+    <div class="grid charts">
+      <div class="panel">
+        <h2>CMJ trend (example)</h2>
+        <div class="chart-box"><canvas id="ch-cmj"></canvas></div>
+        <p class="mono">Normative ranges: see Content Architecture — force plate KPI reference.</p>
+      </div>
+      <div class="panel">
+        <h2>ACWR J-curve (schematic)</h2>
+        <div class="chart-box"><canvas id="ch-acwr"></canvas></div>
+        <p class="mono">Based on load-management literature — illustrative only.</p>
+      </div>
+      <div class="panel">
+        <h2>Energy systems (example)</h2>
+        <div class="chart-box"><canvas id="ch-energy"></canvas></div>
+        <p class="mono">Contribution varies by duration and intensity.</p>
+      </div>
+    </div>
+    <section class="hubs">
+      <h1 style="font-size:1.4rem; margin-bottom:16px;">Hubs (accordion)</h1>
+      <details open>
+        <summary>P-04 Force Plate Science &amp; KPIs</summary>
+        <p><span data-term="cmj" class="term">CMJ</span>, RSI, braking phase metrics — tied to VALD/Hawkin normative references in the architecture doc.</p>
+      </details>
+      <details>
+        <summary>P-03 Energy Systems &amp; HIIT</summary>
+        <p>ATP-PCr, glycolytic, and oxidative contributions — see Buchheit &amp; Laursen HIIT text.</p>
+      </details>
+      <details>
+        <summary>P-11 Aging, Longevity &amp; Healthspan</summary>
+        <p>Cross-link to Nutrition hub N-11 for epigenetic nutrition and longevity.</p>
+      </details>
+    </section>
+    <p style="margin-top:24px;" class="mono">
+      Nutrition entry: <a class="inline" href="nutrition.html">Stonebound Nutrition Science</a>
+    </p>
+  </main>
+  <script src="js/tooltip-engine.js"></script>
+  <script src="js/stonebound-charts.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      StoneboundTooltips.init(document.body);
+      const perf = "performance";
+      StoneboundCharts.mountCMJ(document.getElementById("ch-cmj").getContext("2d"), perf);
+      StoneboundCharts.mountACWR(document.getElementById("ch-acwr").getContext("2d"), perf);
+      StoneboundCharts.mountEnergySystems(document.getElementById("ch-energy").getContext("2d"), perf);
+    });
+  </script>
+</body>
+</html>

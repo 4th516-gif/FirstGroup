@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light" />
+  <title>Nutrition Science — Stonebound</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #f6f4ef;
+      --fg: #1a2e2a;
+      --muted: #4a5c56;
+      --teal: #1d9e75;
+      --card: #fff;
+      --border: #d5e0db;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--fg); font-family: "Libre Baskerville", Georgia, serif; min-height: 100vh; }
+    .ui { font-family: "DM Sans", system-ui, sans-serif; }
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 24px; border-bottom: 1px solid var(--border);
+      background: rgba(246, 244, 239, 0.95); position: sticky; top: 0; z-index: 10;
+    }
+    .brand { font-weight: 600; color: var(--teal); letter-spacing: 0.02em; font-size: 1.05rem; }
+    nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 0.9rem; font-family: "DM Sans", sans-serif; }
+    nav a:hover { color: var(--fg); }
+    main { max-width: 900px; margin: 0 auto; padding: 36px 20px 72px; }
+    h1 { font-size: 2rem; margin-bottom: 12px; color: var(--fg); }
+    .lede { color: var(--muted); line-height: 1.65; margin-bottom: 28px; font-size: 1.05rem; }
+    .term { border-bottom: 1px dotted var(--teal); cursor: help; }
+    .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
+    @media (min-width: 800px) { .grid.charts { grid-template-columns: 1fr 1fr; } }
+    .panel {
+      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px;
+      box-shadow: 0 8px 24px rgba(29, 158, 117, 0.06);
+    }
+    .panel h2 { font-family: "DM Sans", sans-serif; font-size: 0.95rem; color: var(--teal); margin-bottom: 12px; font-weight: 600; }
+    .chart-box { height: 260px; position: relative; }
+    .caption { font-family: "DM Sans", sans-serif; font-size: 0.82rem; color: var(--muted); margin-top: 10px; }
+    .badge { display: inline-block; font-family: "DM Sans", sans-serif; font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; background: #e8f5f0; color: var(--teal); margin-right: 6px; }
+    .circle-nav {
+      display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; justify-content: center;
+    }
+    .circle-nav a {
+      width: 100px; height: 100px; border-radius: 50%; border: 2px solid var(--teal);
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      text-decoration: none; color: var(--fg); font-family: "DM Sans", sans-serif;
+      font-size: 0.75rem; padding: 8px; background: #fff;
+    }
+    .circle-nav a:hover { background: #e8f5f0; }
+  </style>
+</head>
+<body>
+  <header class="ui">
+    <div class="brand">Stonebound · Nutrition Science</div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="performance.html">Performance</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="subscribe.html">Subscribe</a>
+    </nav>
+  </header>
+  <main>
+    <h1>Stonebound Nutrition Science</h1>
+    <p class="lede">
+      Reference-dense articles with citation badges, ISSN-style evidence framing, and PubMed-linked updates.
+      Explore <span data-term="diaas" class="term">DIAAS</span>, <span data-term="gi" class="term">glycemic index</span>,
+      <span data-term="tef" class="term">TEF</span>, and <span data-term="epigenetics" class="term">epigenetics</span> in the shared tooltip library.
+    </p>
+    <div class="grid charts">
+      <div class="panel ui">
+        <h2>DIAAS (illustrative)</h2>
+        <div class="chart-box"><canvas id="ch-diaas"></canvas></div>
+        <p class="caption">Compare to protein quality chapters in your architecture doc.</p>
+      </div>
+      <div class="panel ui">
+        <h2>GI scores (example foods)</h2>
+        <div class="chart-box"><canvas id="ch-gi"></canvas></div>
+        <p class="caption">University of Sydney GI database for production values.</p>
+      </div>
+      <div class="panel ui">
+        <h2>TEF by macronutrient (illustrative %)</h2>
+        <div class="chart-box"><canvas id="ch-tef"></canvas></div>
+        <p class="caption">Use controlled trial citations in articles — not chart values alone.</p>
+      </div>
+    </div>
+    <div class="circle-nav ui" aria-label="Hub shortcuts">
+      <a href="architecture.html#map">N-01 Protein</a>
+      <a href="architecture.html#map">N-02 Carbs &amp; GI</a>
+      <a href="architecture.html#map">N-10 PubMed feed</a>
+      <a href="architecture.html#map">N-11 Epigenetics</a>
+    </div>
+    <p class="caption ui" style="margin-top:24px; text-align:center;">
+      Performance hub: <a href="performance.html" style="color:var(--teal);">Stonebound Performance Science</a>
+    </p>
+  </main>
+  <script src="js/tooltip-engine.js"></script>
+  <script src="js/stonebound-charts.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      StoneboundTooltips.init(document.body);
+      const theme = "nutrition";
+      StoneboundCharts.mountDIAAS(document.getElementById("ch-diaas").getContext("2d"), theme);
+      StoneboundCharts.mountGI(document.getElementById("ch-gi").getContext("2d"), theme);
+      StoneboundCharts.mountTEF(document.getElementById("ch-tef").getContext("2d"), theme);
+    });
+  </script>
+</body>
+</html>

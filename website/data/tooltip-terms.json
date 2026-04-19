@@ -1,0 +1,48 @@
+{
+  "performance": {
+    "periodization": {
+      "definition": "Planned variation of training stress over time (e.g. volume, intensity, specificity) to peak for performance.",
+      "short": "Training planning over time"
+    },
+    "acwr": {
+      "definition": "Acute:Chronic Workload Ratio — compares recent load to rolling average; used in load management research.",
+      "short": "Load ratio (acute vs chronic)"
+    },
+    "rsi": {
+      "definition": "Reactive Strength Index — jump height divided by ground contact time; used in plyometric monitoring.",
+      "short": "Jump height / contact time"
+    },
+    "cmj": {
+      "definition": "Countermovement Jump — common force-plate test of lower-body neuromuscular function.",
+      "short": "Countermovement jump test"
+    }
+  },
+  "nutrition": {
+    "diaas": {
+      "definition": "Digestible Indispensable Amino Acid Score — FAO method for protein quality vs human needs.",
+      "short": "Protein quality score"
+    },
+    "tef": {
+      "definition": "Thermic Effect of Food — energy used to digest, absorb, and metabolize nutrients.",
+      "short": "Diet-induced thermogenesis"
+    },
+    "gi": {
+      "definition": "Glycemic Index — blood glucose response to a carbohydrate food vs reference.",
+      "short": "Carb glucose response"
+    },
+    "epigenetics": {
+      "definition": "Heritable changes in gene expression without DNA sequence changes (e.g. methylation).",
+      "short": "Gene regulation marks"
+    }
+  },
+  "research": {
+    "pmid": {
+      "definition": "PubMed ID — unique identifier for citations in the PubMed database.",
+      "short": "PubMed identifier"
+    },
+    "rct": {
+      "definition": "Randomized Controlled Trial — experimental study design with random assignment.",
+      "short": "Randomized trial"
+    }
+  }
+}

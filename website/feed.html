@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PubMed Feed — Stonebound</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/stonebound-shell.css" />
   <style>
     :root {
       --bg: #0a0a0b;
@@ -16,13 +17,10 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(10,10,11,0.95); z-index: 10;
-    }
-    .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
-    nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 0.9rem; }
-    nav a:hover { color: var(--fg); }
+    .sb-header { background: rgba(10,10,11,0.95); }
+    .sb-header .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
+    .sb-header nav a { color: var(--muted); }
+    .sb-header nav a:hover { color: var(--fg); }
     main { max-width: 800px; margin: 0 auto; padding: 32px 20px 72px; }
     h1 { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
     .lede { color: var(--muted); margin-bottom: 24px; line-height: 1.55; }
@@ -43,16 +41,19 @@
   </style>
 </head>
 <body>
-  <header>
+  <a class="skip-link" href="#main">Skip to feed</a>
+  <header class="sb-header">
     <div class="brand">Stonebound · PubMed feed</div>
-    <nav>
+    <nav aria-label="Primary">
       <a href="index.html">Home</a>
+      <a href="performance.html">Performance</a>
       <a href="nutrition.html">Nutrition</a>
       <a href="architecture.html">Architecture</a>
+      <a href="feed.html" aria-current="page">PubMed feed</a>
       <a href="subscribe.html">Subscribe</a>
     </nav>
   </header>
-  <main>
+  <main id="main" tabindex="-1">
     <h1>Research updates</h1>
     <p class="lede">
       Three-sentence digest format: <strong style="color:#cbd5e1">finding → mechanism → implication</strong>, generated from PubMed abstracts after sync.

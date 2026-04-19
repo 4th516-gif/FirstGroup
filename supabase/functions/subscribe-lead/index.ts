@@ -41,8 +41,9 @@ Deno.serve(async (req: Request) => {
   }
 
   const email = (body.email ?? "").trim().toLowerCase();
+  // Pre-launch: single free list only (ignore legacy "paid" from old clients)
   const tierRaw = (body.tier ?? "free").toLowerCase();
-  const tier = tierRaw === "paid" ? "paid" : tierRaw === "free" ? "free" : "unknown";
+  const tier = tierRaw === "free" || tierRaw === "paid" ? "free" : "unknown";
   const source = (body.source ?? "subscribe_page").slice(0, 120);
 
   if (!email || !EMAIL_RE.test(email)) {

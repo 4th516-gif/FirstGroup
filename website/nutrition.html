@@ -6,6 +6,7 @@
   <meta name="color-scheme" content="light" />
   <title>Nutrition Science — Stonebound</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/stonebound-shell.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -19,14 +20,13 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--fg); font-family: "Libre Baskerville", Georgia, serif; min-height: 100vh; }
     .ui { font-family: "DM Sans", system-ui, sans-serif; }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 24px; border-bottom: 1px solid var(--border);
-      background: rgba(246, 244, 239, 0.95); position: sticky; top: 0; z-index: 10;
+    .sb-header {
+      border-bottom-color: var(--border);
+      background: rgba(246, 244, 239, 0.95);
     }
     .brand { font-weight: 600; color: var(--teal); letter-spacing: 0.02em; font-size: 1.05rem; }
-    nav a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: 0.9rem; font-family: "DM Sans", sans-serif; }
-    nav a:hover { color: var(--fg); }
+    .sb-header nav a { color: var(--muted); font-family: "DM Sans", sans-serif; }
+    .sb-header nav a:hover { color: var(--fg); }
     main { max-width: 900px; margin: 0 auto; padding: 36px 20px 72px; }
     h1 { font-size: 2rem; margin-bottom: 12px; color: var(--fg); }
     .lede { color: var(--muted); line-height: 1.65; margin-bottom: 28px; font-size: 1.05rem; }
@@ -54,16 +54,19 @@
   </style>
 </head>
 <body>
-  <header class="ui">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="sb-header ui">
     <div class="brand">Stonebound · Nutrition Science</div>
-    <nav>
+    <nav aria-label="Primary">
       <a href="index.html">Home</a>
       <a href="performance.html">Performance</a>
+      <a href="nutrition.html" aria-current="page">Nutrition</a>
       <a href="architecture.html">Architecture</a>
+      <a href="feed.html">PubMed feed</a>
       <a href="subscribe.html">Subscribe</a>
     </nav>
   </header>
-  <main>
+  <main id="main" tabindex="-1">
     <h1>Stonebound Nutrition Science</h1>
     <p class="lede">
       Reference-dense articles with citation badges, ISSN-style evidence framing, and PubMed-linked updates.

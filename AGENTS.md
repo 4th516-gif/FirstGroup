@@ -2,7 +2,7 @@
 
 ## Stonebound Performance
 
-Research-grounded performance and nutrition platform: static site in `website/`, Supabase Edge Functions in `supabase/functions/`, and SQL migrations in `supabase/migrations/`. No npm bundler — HTML pages with CDN scripts (Chart.js, Supabase JS).
+Research-grounded performance and nutrition platform: static site in `website/` (shared `css/stonebound-shell.css` for navigation, skip link, focus rings), Supabase Edge Functions in `supabase/functions/`, and SQL migrations in `supabase/migrations/`. No npm bundler — HTML pages with CDN scripts (Chart.js, Supabase JS).
 
 ### Run the site locally
 
@@ -14,7 +14,7 @@ Browse `http://localhost:8080/index.html` (landing), `performance.html`, `nutrit
 
 ### Configure Supabase
 
-1. Apply migrations in `supabase/migrations/` in order (`*_stonebound_core.sql` then `*_stonebound_subscriber_count.sql`) via SQL editor or `supabase db push`.
+1. Apply migrations in `supabase/migrations/` in order (`*_stonebound_core.sql`, `*_stonebound_subscriber_count.sql`, `*_stonebound_subscribers_free_only.sql`) via SQL editor or `supabase db push`. The last migration restricts `stonebound_subscribers.tier` to `free` / `unknown` for the pre-launch single list.
 2. Copy the **anon** key into `website/js/stonebound-config.js` (replace `YOUR_ANON_KEY`). Keep the project URL aligned with your instance. The subscribe page calls `stonebound_subscriber_count()` (SQL `count(*)`) via RPC for the public total — no row data is exposed.
 3. Deploy Edge Functions:
 

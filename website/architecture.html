@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Site Architecture — Stonebound</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/stonebound-shell.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -18,13 +19,10 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 20px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: rgba(15,17,20,0.95); z-index: 5;
-    }
-    .brand { font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
-    nav a { color: var(--muted); text-decoration: none; margin-left: 16px; font-size: 0.88rem; }
-    nav a:hover { color: var(--fg); }
+    .sb-header { background: rgba(15,17,20,0.95); padding: 14px 20px; }
+    .sb-header .brand { font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
+    .sb-header nav a { color: var(--muted); font-size: 0.88rem; }
+    .sb-header nav a:hover { color: var(--fg); }
     main { max-width: 1100px; margin: 0 auto; padding: 28px 18px 64px; }
     h1 { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
     .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
@@ -50,16 +48,19 @@
   </style>
 </head>
 <body>
-  <header>
+  <a class="skip-link" href="#map">Skip to content</a>
+  <header class="sb-header">
     <div class="brand">Stonebound · Architecture</div>
-    <nav>
+    <nav aria-label="Primary">
       <a href="index.html">Home</a>
       <a href="performance.html">Performance</a>
       <a href="nutrition.html">Nutrition</a>
+      <a href="architecture.html" aria-current="page">Architecture</a>
+      <a href="feed.html">PubMed feed</a>
       <a href="subscribe.html">Subscribe</a>
     </nav>
   </header>
-  <main id="map">
+  <main id="map" tabindex="-1">
     <h1>Site architecture &amp; feature system</h1>
     <p style="color:var(--muted); margin-bottom:20px; max-width:70ch;">
       Six views: site map, performance hubs, nutrition hubs, tooltip engine demo, Chart.js library, and cross-hub matrix.
@@ -79,7 +80,7 @@
         <li><strong>Performance Science</strong> — <code>performance.html</code></li>
         <li><strong>Nutrition Science</strong> — <code>nutrition.html</code></li>
         <li><strong>Architecture</strong> — <code>architecture.html</code> (this page)</li>
-        <li><strong>Subscribe</strong> — <code>subscribe.html</code> (lead capture → Edge Function)</li>
+        <li><strong>Subscribe</strong> — <code>subscribe.html</code> (newsletter list; Edge Function)</li>
         <li><strong>Assets</strong> — <code>js/</code>, <code>data/tooltip-terms.json</code>, <code>newsletter/</code></li>
       </ul>
     </section>

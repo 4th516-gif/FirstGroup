@@ -1,0 +1,62 @@
+/* Shared layout: clear hierarchy, focus states, low-friction navigation */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0.5rem;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  background: var(--amber, #ef9f27);
+  color: #111;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 6px;
+}
+.skip-link:focus {
+  left: 0.5rem;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.sb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border, #2a2a2e);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.sb-header nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 20px;
+}
+
+.sb-header nav a {
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.sb-header nav a:hover {
+  color: var(--fg, inherit);
+}
+.sb-header nav a[aria-current="page"] {
+  border-bottom-color: var(--amber, #ef9f27);
+  color: var(--fg, inherit);
+}
+
+main:focus { outline: none; }
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--amber, #ef9f27);
+  outline-offset: 2px;
+}

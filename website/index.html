@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Stonebound — research-grounded performance and nutrition science. Peer-reviewed sources, PMID and ISBN citations." />
   <title>Stonebound Performance — Science Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/stonebound-shell.css" />
   <style>
     :root {
       --bg: #0a0a0b;
@@ -22,21 +24,13 @@
       background: var(--bg);
       color: var(--fg);
       font-family: system-ui, sans-serif;
-      line-height: 1.5;
+      line-height: 1.55;
     }
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
+    .sb-header {
       background: rgba(10, 10, 11, 0.92);
       backdrop-filter: blur(8px);
-      z-index: 10;
     }
-    .brand {
+    .sb-header .brand {
       font-family: "Barlow Condensed", sans-serif;
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -44,27 +38,40 @@
       font-size: 1.1rem;
       color: var(--amber);
     }
-    nav a {
-      color: var(--muted);
-      text-decoration: none;
-      margin-left: 20px;
-      font-size: 0.9rem;
-    }
-    nav a:hover { color: var(--fg); }
+    .sb-header nav a { color: var(--muted); }
+    .sb-header nav a:hover { color: var(--fg); }
     main { max-width: 1100px; margin: 0 auto; padding: 40px 20px 80px; }
     h1 {
       font-family: "Barlow Condensed", sans-serif;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      font-size: clamp(2rem, 4vw, 3rem);
-      margin-bottom: 12px;
+      letter-spacing: 0.06em;
+      font-size: clamp(1.75rem, 4vw, 2.75rem);
+      margin-bottom: 16px;
+      line-height: 1.15;
     }
-    .lede { color: var(--muted); max-width: 62ch; margin-bottom: 40px; }
+    .lede { color: var(--muted); max-width: 68ch; margin-bottom: 20px; }
+    .story {
+      border-left: 3px solid var(--amber);
+      padding: 16px 0 16px 20px;
+      margin: 28px 0 36px;
+      max-width: 68ch;
+    }
+    .story h2 {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .story p { color: #c4c4c8; font-size: 0.95rem; margin-bottom: 12px; }
+    .story p:last-child { margin-bottom: 0; }
+    .story a { color: var(--amber); }
     .sisyphus-wrap {
       display: grid;
       grid-template-columns: 1fr;
       gap: 24px;
-      align-items: center;
+      align-items: start;
       margin-bottom: 48px;
     }
     @media (min-width: 900px) {
@@ -79,6 +86,9 @@
     }
     .svg-stage svg { width: 100%; height: auto; display: block; }
     .hit-layer a { cursor: pointer; }
+    .hit-layer a:focus { outline: none; }
+    .hit-layer a:focus-visible circle,
+    .hit-layer a:focus-visible path { filter: brightness(1.15); }
     .cta-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -106,19 +116,30 @@
     .cta p { color: var(--muted); font-size: 0.92rem; }
     .cta.perf { border-left: 4px solid var(--amber); }
     .cta.nutr { border-left: 4px solid #1d9e75; }
+    .term { border-bottom: 1px dotted var(--amber); cursor: help; }
     .cite {
       font-family: "IBM Plex Mono", monospace;
       font-size: 0.75rem;
       color: var(--muted);
       margin-top: 32px;
     }
+    .next {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      max-width: 62ch;
+    }
+    .next p { color: var(--muted); font-size: 0.92rem; margin-bottom: 10px; }
+    .next a { color: var(--amber); font-weight: 600; text-decoration: none; border-bottom: 1px solid transparent; }
+    .next a:hover { border-bottom-color: var(--amber); }
   </style>
 </head>
 <body>
-  <header>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="sb-header">
     <div class="brand">Stonebound</div>
-    <nav>
-      <a href="index.html">Home</a>
+    <nav aria-label="Primary">
+      <a href="index.html" aria-current="page">Home</a>
       <a href="performance.html">Performance Science</a>
       <a href="nutrition.html">Nutrition Science</a>
       <a href="architecture.html">Architecture</a>
@@ -126,16 +147,32 @@
       <a href="subscribe.html">Subscribe</a>
     </nav>
   </header>
-  <main>
-    <h1>Training is the struggle. Nutrition is the human doing the work.</h1>
+  <main id="main" tabindex="-1">
+    <h1>The work never ends. That is the point.</h1>
     <p class="lede">
-      Stonebound is a research-grounded performance and nutrition platform: peer-reviewed sources,
-      PMID or ISBN citations, and technical depth translated for clarity.
-      <span data-term="pmid" class="term">Hover terms</span> use the shared tooltip library on inner pages.
+      Stonebound is built for people who train and eat like the outcome is never “done” — only the next honest rep, meal, and night of sleep.
+      Everything here is tied to indexed research or published books: PMID or ISBN, author and journal named.
+      <span data-term="pmid" class="term">Key terms</span> explain themselves on hover where you see them.
     </p>
+
+    <section class="story" aria-labelledby="story-heading">
+      <h2 id="story-heading">Why Sisyphus</h2>
+      <p>
+        In the myth, Sisyphus is condemned to roll a boulder uphill forever. Albert Camus used the image to talk about absurdity — and about choosing to push anyway, finding meaning in the effort rather than in a final reward.
+      </p>
+      <p>
+        On this site, the <strong>boulder</strong> is the endless load of training: volume, intensity, skill, return-to-play. The <strong>figure</strong> is the person: fuel, recovery, habit, and the “human element” that keeps the work sustainable. Same hill, same physics — different levers.
+      </p>
+      <p>
+        If you want the story in depth, this is a useful touchstone (title may vary by region):
+        <a href="https://youtu.be/kE1zmi3fxh8" rel="noopener noreferrer" target="_blank">YouTube — thematic framing of the myth</a>.
+      </p>
+    </section>
+
     <div class="sisyphus-wrap">
-      <div class="svg-stage" aria-label="Sisyphus metaphor animation">
-        <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img">
+      <div class="svg-stage" aria-label="Interactive metaphor: boulder links to Performance, figure links to Nutrition">
+        <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="false">
+          <title>Sisyphus hill: boulder and figure</title>
           <defs>
             <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#1a1a1d" />
@@ -145,37 +182,40 @@
           <rect width="800" height="420" fill="url(#hill)" />
           <path d="M0 340 Q 200 260 400 220 T 800 140 L 800 420 L 0 420 Z" fill="#151517" stroke="#2a2a2e" />
           <g class="hit-layer">
-            <a href="performance.html" aria-label="Performance Science — the boulder">
+            <a href="performance.html" aria-label="Open Performance Science — training load and methodology">
               <circle cx="520" cy="200" r="62" fill="#1f1f22" stroke="#ef9f27" stroke-width="3" />
-              <animateTransform attributeName="transform" type="translate" values="0 0; 0 -10; 0 0" dur="4s" repeatCount="indefinite" />
+              <animateTransform attributeName="transform" type="translate" values="0 0; 0 -10; 0 0" dur="5s" repeatCount="indefinite" />
             </a>
-            <a href="nutrition.html" aria-label="Nutrition Science — the figure">
+            <a href="nutrition.html" aria-label="Open Nutrition Science — fuel and recovery">
               <g transform="translate(380 210)">
                 <circle cx="0" cy="-70" r="14" fill="#d4d4d8" />
                 <path d="M0 -56 L0 20 M-28 0 L28 0 M-18 20 L0 50 L18 20" stroke="#d4d4d8" stroke-width="6" fill="none" stroke-linecap="round" />
-                <animateTransform attributeName="transform" type="translate" values="380 210; 380 200; 380 210" dur="4s" repeatCount="indefinite" additive="sum" />
+                <animateTransform attributeName="transform" type="translate" values="380 210; 380 200; 380 210" dur="5s" repeatCount="indefinite" additive="sum" />
               </g>
             </a>
           </g>
-          <text x="40" y="48" fill="#ef9f27" font-family="Barlow Condensed, sans-serif" font-size="28" letter-spacing="6">PERFORMANCE</text>
-          <text x="40" y="76" fill="#1d9e75" font-family="Barlow Condensed, sans-serif" font-size="28" letter-spacing="6">NUTRITION</text>
-          <text x="40" y="390" fill="#6b6b73" font-family="IBM Plex Mono, monospace" font-size="12">Sisyphus — metaphor. Click rock or figure.</text>
+          <text x="40" y="48" fill="#ef9f27" font-family="Barlow Condensed, sans-serif" font-size="26" letter-spacing="5">LOAD &amp; METHOD</text>
+          <text x="40" y="74" fill="#1d9e75" font-family="Barlow Condensed, sans-serif" font-size="26" letter-spacing="5">FUEL &amp; RECOVERY</text>
+          <text x="40" y="390" fill="#6b6b73" font-family="IBM Plex Mono, monospace" font-size="11">Click the boulder or the figure to enter a hub.</text>
         </svg>
       </div>
       <div>
         <p class="lede" style="margin-bottom: 20px;">
-          Two hubs — <strong>Stonebound Performance Science</strong> and <strong>Stonebound Nutrition Science</strong> — with cross-links,
-          hub maps, and a PubMed-backed live feed once your Supabase project is configured.
+          <strong>Stonebound Performance Science</strong> and <strong>Stonebound Nutrition Science</strong> cross-link on purpose: neither hub wins alone on the hill.
         </p>
         <div class="cta-grid">
           <a class="cta perf" href="performance.html">
             <h2>Performance Science</h2>
-            <p>Dark industrial aesthetic, amber accents, programming and KPI science.</p>
+            <p>Periodization, KPIs, load, and return-to-play — dark palette, amber accents.</p>
           </a>
           <a class="cta nutr" href="nutrition.html">
             <h2>Nutrition Science</h2>
-            <p>Clinical reference tone, teal palette, macro and peptide literacy.</p>
+            <p>Macros, timing, evidence grades — clinical palette, teal accents.</p>
           </a>
+        </div>
+        <div class="next">
+          <p><strong>Next step:</strong> skim the hub map, then add your email on Subscribe — we only mail when there is something worth sending.</p>
+          <p><a href="subscribe.html">Join the newsletter →</a></p>
         </div>
       </div>
     </div>

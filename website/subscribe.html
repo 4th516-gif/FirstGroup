@@ -8,20 +8,22 @@
   <link rel="stylesheet" href="css/stonebound-shell.css" />
   <style>
     :root {
-      --bg: #0a0a0b;
-      --fg: #e8e8ea;
-      --muted: #8b8b93;
-      --amber: #ef9f27;
-      --teal: #1d9e75;
-      --card: #121214;
-      --border: #2a2a2e;
+      --bg: transparent;
+      --fg: #ebe8e4;
+      --muted: #9a9590;
+      --amber: #e8942d;
+      --teal: #2a9d6e;
+      --card: rgba(18, 16, 14, 0.9);
+      --border: rgba(62, 54, 46, 0.85);
       --ok: #22c55e;
       --err: #ef4444;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
+    body { background: transparent; color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
     .sb-header {
-      background: rgba(10,10,11,0.95);
+      background: rgba(12, 10, 8, 0.88);
+      backdrop-filter: blur(10px);
+      border-bottom-color: var(--border);
     }
     .sb-header .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
     .sb-header nav a { color: var(--muted); }
@@ -31,7 +33,10 @@
     .lede { color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
     .benefits {
       border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 18px;
-      background: var(--card); border-top: 3px solid var(--teal); margin-bottom: 28px;
+      background: var(--card);
+      border-top: 3px solid var(--teal);
+      margin-bottom: 28px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
     }
     .benefits h2 { font-size: 0.82rem; font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); margin-bottom: 12px; }
     .benefits ul { margin: 0 0 0 18px; color: var(--muted); font-size: 0.92rem; line-height: 1.55; }
@@ -41,7 +46,7 @@
     label { font-size: 0.85rem; color: var(--muted); }
     input[type="email"] {
       width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
-      background: #0e0e10; color: var(--fg); font-size: 1rem;
+      background: rgba(10, 9, 8, 0.75); color: var(--fg); font-size: 1rem;
     }
     button[type="submit"] {
       background: var(--amber); color: #111; border: none; padding: 14px 20px; border-radius: 10px;
@@ -54,7 +59,7 @@
     .foot { border-left: 3px solid var(--teal); padding-left: 14px; color: var(--muted); font-size: 0.92rem; margin-top: 28px; line-height: 1.55; }
   </style>
 </head>
-<body>
+<body class="sb-surface-performance">
   <a class="skip-link" href="#main">Skip to form</a>
   <header class="sb-header">
     <div class="brand">Stonebound</div>

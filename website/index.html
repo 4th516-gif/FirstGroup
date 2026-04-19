@@ -11,24 +11,27 @@
   <link rel="stylesheet" href="css/stonebound-shell.css" />
   <style>
     :root {
-      --bg: #0a0a0b;
-      --fg: #e8e8ea;
-      --muted: #8b8b93;
-      --amber: #ef9f27;
-      --card: #121214;
-      --border: #2a2a2e;
+      --bg: transparent;
+      --fg: #ebe8e4;
+      --muted: #9a9590;
+      --amber: #e8942d;
+      --amber-dim: rgba(232, 148, 45, 0.14);
+      --stone: #1a1816;
+      --card: rgba(18, 16, 14, 0.88);
+      --border: rgba(62, 54, 46, 0.85);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
-      background: var(--bg);
+      background: transparent;
       color: var(--fg);
       font-family: system-ui, sans-serif;
       line-height: 1.55;
     }
     .sb-header {
-      background: rgba(10, 10, 11, 0.92);
-      backdrop-filter: blur(8px);
+      background: rgba(12, 10, 8, 0.88);
+      backdrop-filter: blur(10px);
+      border-bottom-color: var(--border);
     }
     .sb-header .brand {
       font-family: "Barlow Condensed", sans-serif;
@@ -78,8 +81,9 @@
       .sisyphus-wrap { grid-template-columns: 1.1fr 1fr; }
     }
     .svg-stage {
-      background: linear-gradient(180deg, #0a0a0b 0%, #111113 100%);
+      background: linear-gradient(165deg, rgba(28, 24, 20, 0.95) 0%, rgba(10, 9, 8, 0.98) 100%);
       border: 1px solid var(--border);
+      box-shadow: 0 0 0 1px rgba(232, 148, 45, 0.06), 0 24px 48px rgba(0, 0, 0, 0.35);
       border-radius: 16px;
       padding: 24px;
       min-height: 320px;
@@ -105,7 +109,11 @@
       background: var(--card);
       transition: border-color 0.2s, transform 0.15s;
     }
-    .cta:hover { border-color: var(--amber); transform: translateY(-2px); }
+    .cta:hover {
+      border-color: rgba(232, 148, 45, 0.45);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      transform: translateY(-2px);
+    }
     .cta h2 {
       font-family: "Barlow Condensed", sans-serif;
       text-transform: uppercase;
@@ -134,7 +142,7 @@
     .next a:hover { border-bottom-color: var(--amber); }
   </style>
 </head>
-<body>
+<body class="sb-surface-performance">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="sb-header">
     <div class="brand">Stonebound</div>
@@ -175,28 +183,33 @@
           <title>Sisyphus hill: boulder and figure</title>
           <defs>
             <linearGradient id="hill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#1a1a1d" />
-              <stop offset="100%" stop-color="#0a0a0b" />
+              <stop offset="0%" stop-color="#252018" />
+              <stop offset="100%" stop-color="#0c0b09" />
             </linearGradient>
+            <radialGradient id="boulder" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#3d3830" />
+              <stop offset="55%" stop-color="#252220" />
+              <stop offset="100%" stop-color="#141210" />
+            </radialGradient>
           </defs>
           <rect width="800" height="420" fill="url(#hill)" />
-          <path d="M0 340 Q 200 260 400 220 T 800 140 L 800 420 L 0 420 Z" fill="#151517" stroke="#2a2a2e" />
+          <path d="M0 340 Q 200 260 400 220 T 800 140 L 800 420 L 0 420 Z" fill="#181512" stroke="#3a342c" />
           <g class="hit-layer">
             <a href="performance.html" aria-label="Open Performance Science — training load and methodology">
-              <circle cx="520" cy="200" r="62" fill="#1f1f22" stroke="#ef9f27" stroke-width="3" />
+              <circle cx="520" cy="200" r="62" fill="url(#boulder)" stroke="#e8942d" stroke-width="3" />
               <animateTransform attributeName="transform" type="translate" values="0 0; 0 -10; 0 0" dur="5s" repeatCount="indefinite" />
             </a>
             <a href="nutrition.html" aria-label="Open Nutrition Science — fuel and recovery">
               <g transform="translate(380 210)">
-                <circle cx="0" cy="-70" r="14" fill="#d4d4d8" />
-                <path d="M0 -56 L0 20 M-28 0 L28 0 M-18 20 L0 50 L18 20" stroke="#d4d4d8" stroke-width="6" fill="none" stroke-linecap="round" />
+                <circle cx="0" cy="-70" r="14" fill="#c8c2b8" />
+                <path d="M0 -56 L0 20 M-28 0 L28 0 M-18 20 L0 50 L18 20" stroke="#c8c2b8" stroke-width="6" fill="none" stroke-linecap="round" />
                 <animateTransform attributeName="transform" type="translate" values="380 210; 380 200; 380 210" dur="5s" repeatCount="indefinite" additive="sum" />
               </g>
             </a>
           </g>
-          <text x="40" y="48" fill="#ef9f27" font-family="Barlow Condensed, sans-serif" font-size="26" letter-spacing="5">LOAD &amp; METHOD</text>
-          <text x="40" y="74" fill="#1d9e75" font-family="Barlow Condensed, sans-serif" font-size="26" letter-spacing="5">FUEL &amp; RECOVERY</text>
-          <text x="40" y="390" fill="#6b6b73" font-family="IBM Plex Mono, monospace" font-size="11">Click the boulder or the figure to enter a hub.</text>
+          <text x="40" y="48" fill="#e8942d" font-family="Barlow Condensed, sans-serif" font-size="26" letter-spacing="5">LOAD &amp; METHOD</text>
+          <text x="40" y="74" fill="#2eb87c" font-family="Barlow Condensed, sans-serif" font-size="26" letter-spacing="5">FUEL &amp; RECOVERY</text>
+          <text x="40" y="390" fill="#7a7268" font-family="IBM Plex Mono, monospace" font-size="11">Click the boulder or the figure to enter a hub.</text>
         </svg>
       </div>
       <div>

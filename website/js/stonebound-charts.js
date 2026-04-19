@@ -4,8 +4,8 @@
  */
 (function () {
   const palette = {
-    perf: ["#EF9F27", "#2a2a2a", "#64748b", "#f59e0b"],
-    nutr: ["#1D9E75", "#0f766e", "#94a3b8", "#14b8a6"],
+    perf: ["#e8942d", "#3d3830", "#9a9590", "#c97818"],
+    nutr: ["#1f8f62", "#3d5248", "#6b7a72", "#2eb87c"],
   };
 
   function baseOptions(theme) {

@@ -10,19 +10,20 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #f6f4ef;
-      --fg: #1a2e2a;
-      --muted: #4a5c56;
-      --teal: #1d9e75;
-      --card: #fff;
-      --border: #d5e0db;
+      --bg: transparent;
+      --fg: #1e2c28;
+      --muted: #4f5e58;
+      --teal: #1f8f62;
+      --card: rgba(255, 252, 248, 0.92);
+      --border: rgba(180, 168, 148, 0.45);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--fg); font-family: "Libre Baskerville", Georgia, serif; min-height: 100vh; }
+    body { background: transparent; color: var(--fg); font-family: "Libre Baskerville", Georgia, serif; min-height: 100vh; }
     .ui { font-family: "DM Sans", system-ui, sans-serif; }
     .sb-header {
       border-bottom-color: var(--border);
-      background: rgba(246, 244, 239, 0.95);
+      background: rgba(252, 248, 242, 0.92);
+      backdrop-filter: blur(10px);
     }
     .brand { font-weight: 600; color: var(--teal); letter-spacing: 0.02em; font-size: 1.05rem; }
     .sb-header nav a { color: var(--muted); font-family: "DM Sans", sans-serif; }
@@ -34,8 +35,11 @@
     .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
     @media (min-width: 800px) { .grid.charts { grid-template-columns: 1fr 1fr; } }
     .panel {
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px;
-      box-shadow: 0 8px 24px rgba(29, 158, 117, 0.06);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 10px 36px rgba(40, 32, 24, 0.08);
     }
     .panel h2 { font-family: "DM Sans", sans-serif; font-size: 0.95rem; color: var(--teal); margin-bottom: 12px; font-weight: 600; }
     .chart-box { height: 260px; position: relative; }
@@ -53,7 +57,7 @@
     .circle-nav a:hover { background: #e8f5f0; }
   </style>
 </head>
-<body>
+<body class="sb-surface-nutrition">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="sb-header ui">
     <div class="brand">Stonebound · Nutrition Science</div>

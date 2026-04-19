@@ -1,4 +1,42 @@
-/* Shared layout: clear hierarchy, focus states, low-friction navigation */
+/*
+ * Shared layout: clear hierarchy, focus states, low-friction navigation
+ *
+ * Visual moodboard (stylistic guides — classical Sisyphus / stone / bronze):
+ * Use as color and texture reference only; license artwork before production use.
+ * - https://thumbs.dreamstime.com/b/myth-sisyphus-greek-mythology-generative-ai-363575956.jpg
+ * - https://tse3.mm.bing.net/th/id/OIP.mcJAflkVlhiP2If-RxzZUQHaIa
+ * - https://i.etsystatic.com/25138876/r/il/906bc7/4931320429/il_fullxfull.4931320429_qy6i.jpg
+ * - https://media.licdn.com/dms/image/v2/D4D22AQH-o--bt_Z3mA/feedshare-shrink_1280/B4DZUD_pqSGkAk-/0/1739528773454
+ */
+
+/* Dark “bronze & stone” canvas — Performance hub, landing, feed, subscribe */
+body.sb-surface-performance {
+  background-color: #070605;
+  background-image:
+    radial-gradient(ellipse 100% 70% at 50% -15%, rgba(239, 159, 39, 0.09), transparent 52%),
+    radial-gradient(ellipse 80% 50% at 100% 50%, rgba(45, 38, 28, 0.35), transparent 45%),
+    linear-gradient(180deg, #060504 0%, #0e0c0a 45%, #070605 100%);
+  background-attachment: fixed;
+}
+
+/* Light “marble & stone” canvas — Nutrition hub */
+body.sb-surface-nutrition {
+  background-color: #f2ebe2;
+  background-image:
+    radial-gradient(ellipse 90% 60% at 90% 0%, rgba(29, 158, 117, 0.07), transparent 50%),
+    radial-gradient(ellipse 70% 50% at 10% 100%, rgba(180, 160, 130, 0.12), transparent 45%),
+    linear-gradient(180deg, #faf7f2 0%, #f2ebe2 55%, #efe6db 100%);
+  background-attachment: fixed;
+}
+
+/* Architecture page: same family as dark hubs, slightly cooler midtone */
+body.sb-surface-architecture {
+  background-color: #0c0d10;
+  background-image:
+    radial-gradient(ellipse 90% 55% at 30% -10%, rgba(239, 159, 39, 0.06), transparent 48%),
+    linear-gradient(180deg, #0a0b0e 0%, #12141a 50%, #0c0d10 100%);
+  background-attachment: fixed;
+}
 .skip-link {
   position: absolute;
   left: -9999px;

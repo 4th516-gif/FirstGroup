@@ -9,15 +9,15 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0a0a0b;
-      --fg: #e8e8ea;
-      --muted: #8b8b93;
-      --amber: #ef9f27;
-      --card: #121214;
-      --border: #2a2a2e;
+      --bg: transparent;
+      --fg: #ebe8e4;
+      --muted: #9a9590;
+      --amber: #e8942d;
+      --card: rgba(18, 16, 14, 0.9);
+      --border: rgba(62, 54, 46, 0.85);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; min-height: 100vh; }
+    body { background: transparent; color: var(--fg); font-family: system-ui, sans-serif; min-height: 100vh; }
     .sb-header { background: rgba(10,10,11,0.95); }
     .sb-header .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
     .sb-header nav a { color: var(--muted); }
@@ -29,19 +29,23 @@
     .grid { display: grid; gap: 20px; grid-template-columns: 1fr; }
     @media (min-width: 800px) { .grid.charts { grid-template-columns: 1fr 1fr; } }
     .panel {
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
     }
     .panel h2 { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 0.05em; font-size: 1rem; color: var(--amber); margin-bottom: 12px; }
     .chart-box { height: 260px; position: relative; }
     .hubs { margin-top: 32px; }
-    details { border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; background: #0e0e10; }
+    details { border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; background: rgba(10, 9, 8, 0.65); }
     summary { cursor: pointer; font-weight: 600; font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.04em; }
     details p { margin-top: 10px; color: var(--muted); font-size: 0.92rem; }
     .mono { font-family: "IBM Plex Mono", monospace; font-size: 0.8rem; color: var(--muted); }
     a.inline { color: var(--amber); }
   </style>
 </head>
-<body>
+<body class="sb-surface-performance">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="sb-header">
     <div class="brand">Stonebound · Performance</div>

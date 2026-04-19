@@ -9,17 +9,22 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0f1114;
-      --fg: #e5e7eb;
-      --muted: #94a3b8;
-      --tab: #1a1d23;
-      --border: #2d3340;
-      --amber: #ef9f27;
-      --teal: #1d9e75;
+      --bg: transparent;
+      --fg: #ebe8e4;
+      --muted: #9a9590;
+      --tab: rgba(22, 20, 18, 0.85);
+      --border: rgba(62, 54, 46, 0.85);
+      --amber: #e8942d;
+      --teal: #2a9d6e;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
-    .sb-header { background: rgba(15,17,20,0.95); padding: 14px 20px; }
+    body { background: transparent; color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
+    .sb-header {
+      background: rgba(12, 10, 8, 0.88);
+      backdrop-filter: blur(10px);
+      padding: 14px 20px;
+      border-bottom-color: var(--border);
+    }
     .sb-header .brand { font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
     .sb-header nav a { color: var(--muted); font-size: 0.88rem; }
     .sb-header nav a:hover { color: var(--fg); }
@@ -32,7 +37,12 @@
     }
     .tabs button.active { border-color: var(--amber); color: var(--amber); }
     .panel {
-      display: none; border: 1px solid var(--border); border-radius: 12px; padding: 20px; background: #141820;
+      display: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      background: rgba(18, 16, 14, 0.88);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2);
     }
     .panel.active { display: block; }
     .panel h2 { font-size: 1rem; margin-bottom: 12px; color: var(--teal); }
@@ -40,14 +50,14 @@
     .panel ul { margin: 12px 0 0 20px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 12px; }
     th, td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; }
-    th { background: #1a2028; color: var(--fg); }
+    th { background: rgba(30, 26, 22, 0.95); color: var(--fg); }
     .matrix { overflow-x: auto; }
     .chart-box { height: 220px; max-width: 480px; margin-top: 16px; position: relative; }
     .tooltip-demo span[data-term] { border-bottom: 1px dotted var(--amber); cursor: help; }
     #map { scroll-margin-top: 80px; }
   </style>
 </head>
-<body>
+<body class="sb-surface-architecture">
   <a class="skip-link" href="#map">Skip to content</a>
   <header class="sb-header">
     <div class="brand">Stonebound · Architecture</div>

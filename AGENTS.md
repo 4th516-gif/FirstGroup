@@ -2,7 +2,7 @@
 
 ## Stonebound Performance
 
-Research-grounded performance and nutrition platform: static site in `website/` (shared `css/stonebound-shell.css` for navigation, skip link, focus rings), Supabase Edge Functions in `supabase/functions/`, and SQL migrations in `supabase/migrations/`. No npm bundler — HTML pages with CDN scripts (Chart.js, Supabase JS).
+Research-grounded performance and nutrition platform: static site in `website/` (shared `css/stonebound-shell.css` for navigation, skip link, focus rings, **Sisyphus moodboard URL list** in CSS comments, and surface classes `sb-surface-performance`, `sb-surface-nutrition`, `sb-surface-architecture`), Supabase Edge Functions in `supabase/functions/`, and SQL migrations in `supabase/migrations/`. No npm bundler — HTML pages with CDN scripts (Chart.js, Supabase JS).
 
 ### Run the site locally
 

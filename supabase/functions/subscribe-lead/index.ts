@@ -6,11 +6,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const SITE_URL = Deno.env.get("SITE_URL") ?? "*";
-
+// Public form endpoint: allow any origin (static site + Netlify preview URLs).
 function corsHeaders(): HeadersInit {
   return {
-    "Access-Control-Allow-Origin": SITE_URL === "*" ? "*" : SITE_URL,
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers":
       "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",

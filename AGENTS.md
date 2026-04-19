@@ -36,4 +36,7 @@ deno check supabase/functions/pubmed-sync/index.ts
 
 ### Netlify
 
-`website/_redirects` proxies `/functions/*` to Supabase so the static site can call `subscribe-lead` and `pubmed-sync` same-origin when deployed.
+- **Publish directory:** `website` (see root `netlify.toml`).
+- **`website/_redirects`** proxies `/functions/subscribe-lead` and `/functions/pubmed-sync` to Supabase so the browser can call Edge Functions same-origin.
+- **CLI (authenticated):** set `NETLIFY_AUTH_TOKEN`, then `npx netlify-cli deploy --dir=website --prod` from the repo root (links the site to your Netlify account).
+- **Anonymous drop (temporary):** `npx netlify-cli deploy --dir=website --prod --allow-anonymous` gives a short-lived URL and password; claim the site in the Netlify UI before it expires.

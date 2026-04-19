@@ -14,8 +14,8 @@ Browse `http://localhost:8080/index.html` (landing), `performance.html`, `nutrit
 
 ### Configure Supabase
 
-1. Apply `supabase/migrations/20260419120000_stonebound_core.sql` to your Supabase project (SQL editor or `supabase db push`).
-2. Copy the **anon** key into `website/js/stonebound-config.js` (replace `YOUR_ANON_KEY`). Keep the project URL aligned with your instance.
+1. Apply migrations in `supabase/migrations/` in order (`*_stonebound_core.sql` then `*_stonebound_subscriber_count.sql`) via SQL editor or `supabase db push`.
+2. Copy the **anon** key into `website/js/stonebound-config.js` (replace `YOUR_ANON_KEY`). Keep the project URL aligned with your instance. The subscribe page calls `stonebound_subscriber_count()` (SQL `count(*)`) via RPC for the public total — no row data is exposed.
 3. Deploy Edge Functions:
 
 ```bash

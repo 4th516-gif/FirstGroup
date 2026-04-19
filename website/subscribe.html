@@ -76,7 +76,7 @@
       Paid subscribers receive individualized programming protocols, newsletter digests, and future prescriptive app access.
     </p>
     <p class="count">
-      Subscribers so far: <strong id="sub-count">early access</strong> — we’ll show a live count once Supabase is wired.
+      Subscribers so far: <strong id="sub-count" aria-live="polite">—</strong>
     </p>
     <div class="tiers">
       <div class="tier free">
@@ -115,13 +115,34 @@
       Pre-launch: you’ll receive confirmation when the newsletter and PubMed pipeline go live. No podcast sources — only indexed research and published books.
     </p>
   </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="js/stonebound-config.js"></script>
   <script>
     (function () {
       const form = document.getElementById("sub-form");
       const msg = document.getElementById("sub-msg");
       const btn = document.getElementById("sub-btn");
+      const countEl = document.getElementById("sub-count");
       const base = window.STONEBOUND_FUNCTIONS_URL || "";
+
+      async function refreshSubscriberCount() {
+        const url = window.STONEBOUND_SUPABASE_URL;
+        const key = window.STONEBOUND_SUPABASE_ANON_KEY;
+        if (!url || !key || key.includes("YOUR_ANON") || !window.supabase?.createClient) {
+          countEl.textContent = "—";
+          return;
+        }
+        const client = window.supabase.createClient(url, key);
+        const { data, error } = await client.rpc("stonebound_subscriber_count");
+        if (error) {
+          countEl.textContent = "—";
+          return;
+        }
+        const n = typeof data === "number" ? data : Number(data);
+        countEl.textContent = Number.isFinite(n) ? String(n) : "—";
+      }
+
+      refreshSubscriberCount();
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -151,6 +172,7 @@
           msg.textContent = "You’re on the list. Thank you.";
           msg.classList.add("ok");
           form.reset();
+          refreshSubscriberCount();
         } catch (err) {
           msg.textContent = err.message || "Something went wrong.";
           msg.classList.add("err");

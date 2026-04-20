@@ -1,102 +1,15 @@
-// Stonebound — PubMed sync via NCBI E-utilities (esearch + efetch XML)
-// Invoke on a schedule (Supabase cron) with Authorization: Bearer CRON_SECRET
-// Optional: pass ?term= URL-encoded query override
-// Requires env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, NCBI_API_KEY (recommended)
-
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-const NCBI_API_KEY = Deno.env.get("NCBI_API_KEY") ?? "";
-const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
-const DEFAULT_TERM =
-  Deno.env.get("PUBMED_DEFAULT_TERM") ??
-  "(exercise[Title/Abstract] OR athlete[Title/Abstract]) AND (randomized controlled trial[Publication Type] OR systematic review[Publication Type])";
-
-const ESEARCH =
-  "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi";
-const EFETCH =
-  "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi";
-
-function requireAuth(req: Request): boolean {
-  if (!CRON_SECRET) return true; // dev: allow if not set
-  const auth = req.headers.get("Authorization");
-  return auth === `Bearer ${CRON_SECRET}`;
-}
-
-function extractTag(xml: string, tag: string): string {
-  const re = new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`, "i");
-  const m = xml.match(re);
-  return m ? m[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim() : "";
-}
-
-function extractAbstract(xml: string): string {
-  const block = xml.match(/<Abstract>([\s\S]*?)<\/Abstract>/i);
-  if (!block) return "";
-  const texts: string[] = [];
-  const abs = block[1];
-  const re = /<AbstractText[^>]*(?:Label="([^"]*)")?[^>]*>([\s\S]*?)<\/AbstractText>/gi;
-  let m;
-  while ((m = re.exec(abs)) !== null) {
-    const label = m[1];
-    const t = m[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    if (t) texts.push(label ? `${label}: ${t}` : t);
-  }
-  if (texts.length) return texts.join(" ");
-  return extractTag(block[1], "AbstractText");
-}
-
-function splitDigest(abstract: string): {
-  finding: string;
-  mechanism: string;
-  implication: string;
-} {
-  const s = abstract.replace(/\s+/g, " ").trim();
-  if (!s) {
-    return {
-      finding: "",
-      mechanism: "",
-      implication: "",
-    };
-  }
-  const parts = s.split(/(?<=[.!?])\s+/).filter(Boolean);
-  const chunk = (i: number) =>
-    parts.slice(i * 3, i * 3 + 3).join(" ").slice(0, 1200);
-  return {
-    finding: chunk(0) || s.slice(0, 400),
-    mechanism: chunk(1) || s.slice(400, 800),
-    implication: chunk(2) || s.slice(800, 1200),
-  };
-}
-
-async function esearch(term: string, retmax: number): Promise<string[]> {
-  const u = new URL(ESEARCH);
-  u.searchParams.set("db", "pubmed");
-  u.searchParams.set("retmode", "json");
-  u.searchParams.set("retmax", String(retmax));
-  u.searchParams.set("term", term);
-  if (NCBI_API_KEY) u.searchParams.set("api_key", NCBI_API_KEY);
-  const res = await fetch(u.toString());
-  if (!res.ok) throw new Error(`esearch ${res.status}`);
-  const j = await res.json();
-  const ids = j?.esearchresult?.idlist as string[] | undefined;
-  return ids ?? [];
-}
-
-async function efetchXml(pmids: string[]): Promise<string> {
-  const u = new URL(EFETCH);
-  u.searchParams.set("db", "pubmed");
-  u.searchParams.set("retmode", "xml");
-  u.searchParams.set("id", pmids.join(","));
-  if (NCBI_API_KEY) u.searchParams.set("api_key", NCBI_API_KEY);
-  const res = await fetch(u.toString());
-  if (!res.ok) throw new Error(`efetch ${res.status}`);
-  return await res.text();
-}
-
-function splitArticles(xml: string): string[] {
-  return xml.split(/<PubmedArticle>/i).slice(1).map((s) => "<PubmedArticle>" + s);
-}
+import {
+  closingTag,
+  DEFAULT_TERM,
+  efetchXml,
+  esearch,
+  extractAbstract,
+  extractTag,
+  makeSupabase,
+  requireAuth,
+  splitArticles,
+  splitDigest,
+} from "./lib.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method !== "POST" && req.method !== "GET") {
@@ -112,7 +25,6 @@ Deno.serve(async (req: Request) => {
     25,
     Math.max(1, Number(url.searchParams.get("retmax") ?? "10") || 10),
   );
-
   const hubTag = url.searchParams.get("hub") ?? "N-10";
 
   try {
@@ -125,7 +37,7 @@ Deno.serve(async (req: Request) => {
 
     const xml = await efetchXml(ids);
     const chunks = splitArticles(xml);
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+    const supabase = makeSupabase();
     let inserted = 0;
 
     for (const chunk of chunks) {
@@ -137,12 +49,28 @@ Deno.serve(async (req: Request) => {
         extractTag(chunk, "Year") ||
         extractTag(chunk, "MedlineDate") ||
         "";
-      const authorsBlock = chunk.match(/<AuthorList[^>]*>([\s\S]*?)<\/AuthorList>/i);
       let authors = "";
-      if (authorsBlock) {
-        const lastNames = [...authorsBlock[1].matchAll(/<LastName>([^<]+)<\/LastName>/gi)]
-          .map((m) => m[1])
-          .slice(0, 4);
+      const alOpen = chunk.toLowerCase().indexOf("<authorlist");
+      const alClose = chunk.toLowerCase().indexOf(
+        closingTag("authorlist").toLowerCase(),
+      );
+      if (alOpen !== -1 && alClose !== -1 && alClose > alOpen) {
+        const alInner = chunk.slice(alOpen, alClose);
+        const lastNames: string[] = [];
+        let p = 0;
+        while (lastNames.length < 4 && p < alInner.length) {
+          const lnOpen = alInner.toLowerCase().indexOf("<lastname>", p);
+          if (lnOpen === -1) break;
+          const lnClose = alInner.toLowerCase().indexOf(
+            closingTag("lastname").toLowerCase(),
+            lnOpen,
+          );
+          if (lnClose === -1) break;
+          lastNames.push(
+            alInner.slice(lnOpen + "<LastName>".length, lnClose).trim(),
+          );
+          p = lnClose + closingTag("lastname").length;
+        }
         authors = lastNames.join(", ");
       }
       const abstract = extractAbstract(chunk);

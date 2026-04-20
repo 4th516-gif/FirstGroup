@@ -34,6 +34,8 @@ deno check supabase/functions/subscribe-lead/index.ts
 deno check supabase/functions/pubmed-sync/index.ts
 ```
 
+(`pubmed-sync` uses `lib.ts` for shared NCBI/XML helpers; `deno check` on `index.ts` follows the import.)
+
 ### Netlify
 
 - **Publish directory:** `website` (see root `netlify.toml`).

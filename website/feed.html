@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PubMed Feed — Stonebound</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/stonebound-shell.css" />
+  <style>
+    :root {
+      --bg: transparent;
+      --fg: #ebe8e4;
+      --muted: #9a9590;
+      --amber: #e8942d;
+      --card: rgba(18, 16, 14, 0.9);
+      --border: rgba(62, 54, 46, 0.85);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: transparent; color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
+    .sb-header {
+      background: rgba(12, 10, 8, 0.88);
+      backdrop-filter: blur(10px);
+      border-bottom-color: var(--border);
+    }
+    .sb-header .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
+    .sb-header nav a { color: var(--muted); }
+    .sb-header nav a:hover { color: var(--fg); }
+    main { max-width: 800px; margin: 0 auto; padding: 32px 20px 72px; }
+    h1 { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+    .lede { color: var(--muted); margin-bottom: 24px; line-height: 1.55; }
+    #feed { display: flex; flex-direction: column; gap: 16px; }
+    .feed-card {
+      border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; background: var(--card);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+    }
+    .feed-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.82rem; }
+    .feed-meta a { color: var(--amber); text-decoration: none; }
+    .feed-meta a:hover { text-decoration: underline; }
+    .tag { color: var(--muted); font-family: ui-monospace, monospace; font-size: 0.75rem; }
+    .feed-title { font-size: 1.05rem; margin-bottom: 10px; line-height: 1.35; }
+    .digest { font-size: 0.88rem; color: var(--muted); margin-bottom: 6px; line-height: 1.45; }
+    .digest strong { color: #cbd5e1; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .error { color: #f87171; }
+    code { font-size: 0.85em; background: rgba(0, 0, 0, 0.35); padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body class="sb-surface-performance">
+  <a class="skip-link" href="#main">Skip to feed</a>
+  <header class="sb-header">
+    <div class="brand">Stonebound · PubMed feed</div>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="performance.html">Performance</a>
+      <a href="nutrition.html">Nutrition</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="visual-direction.html">Visual direction</a>
+      <a href="feed.html" aria-current="page">PubMed feed</a>
+      <a href="subscribe.html">Subscribe</a>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <h1>Research updates</h1>
+    <p class="lede">
+      Three-sentence digest format: <strong style="color:#cbd5e1">finding → mechanism → implication</strong>, generated from PubMed abstracts after sync.
+      Configure <code>js/stonebound-config.js</code> and run the <code>pubmed-sync</code> Edge Function on a schedule.
+    </p>
+    <div id="feed" aria-live="polite"></div>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/stonebound-config.js"></script>
+  <script src="js/pubmed-feed.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      StoneboundPubMedFeed.mount("#feed");
+    });
+  </script>
+</body>
+</html>

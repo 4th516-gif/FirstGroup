@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribe — Stonebound Performance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=DM+Sans:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/stonebound-shell.css" />
+  <style>
+    :root {
+      --bg: transparent;
+      --fg: #ebe8e4;
+      --muted: #9a9590;
+      --amber: #e8942d;
+      --teal: #2a9d6e;
+      --card: rgba(18, 16, 14, 0.9);
+      --border: rgba(62, 54, 46, 0.85);
+      --ok: #22c55e;
+      --err: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: transparent; color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; }
+    .sb-header {
+      background: rgba(12, 10, 8, 0.88);
+      backdrop-filter: blur(10px);
+      border-bottom-color: var(--border);
+    }
+    .sb-header .brand { font-family: "Barlow Condensed", sans-serif; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
+    .sb-header nav a { color: var(--muted); }
+    .sb-header nav a:hover { color: var(--fg); }
+    main { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+    h1 { font-family: "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-size: 2rem; margin-bottom: 12px; }
+    .lede { color: var(--muted); margin-bottom: 24px; line-height: 1.6; }
+    .benefits {
+      border: 1px solid var(--border); border-radius: 14px; padding: 22px 22px 18px;
+      background: var(--card);
+      border-top: 3px solid var(--teal);
+      margin-bottom: 28px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+    }
+    .benefits h2 { font-size: 0.82rem; font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber); margin-bottom: 12px; }
+    .benefits ul { margin: 0 0 0 18px; color: var(--muted); font-size: 0.92rem; line-height: 1.55; }
+    .count { font-size: 0.85rem; color: var(--muted); margin-bottom: 24px; }
+    .count strong { color: var(--fg); font-variant-numeric: tabular-nums; }
+    form { display: flex; flex-direction: column; gap: 14px; }
+    label { font-size: 0.85rem; color: var(--muted); }
+    input[type="email"] {
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border);
+      background: rgba(10, 9, 8, 0.75); color: var(--fg); font-size: 1rem;
+    }
+    button[type="submit"] {
+      background: var(--amber); color: #111; border: none; padding: 14px 20px; border-radius: 10px;
+      font-weight: 600; cursor: pointer; font-size: 1rem;
+    }
+    button[type="submit"]:disabled { opacity: 0.5; cursor: not-allowed; }
+    .msg { font-size: 0.9rem; min-height: 1.4em; }
+    .msg.ok { color: var(--ok); }
+    .msg.err { color: var(--err); }
+    .foot { border-left: 3px solid var(--teal); padding-left: 14px; color: var(--muted); font-size: 0.92rem; margin-top: 28px; line-height: 1.55; }
+  </style>
+</head>
+<body class="sb-surface-performance">
+  <a class="skip-link" href="#main">Skip to form</a>
+  <header class="sb-header">
+    <div class="brand">Stonebound</div>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="performance.html">Performance</a>
+      <a href="nutrition.html">Nutrition</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="visual-direction.html">Visual direction</a>
+      <a href="feed.html">PubMed feed</a>
+      <a href="subscribe.html" aria-current="page">Subscribe</a>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <h1>Get the newsletter</h1>
+    <p class="lede">
+      One list for now: research digests, new hub articles, and PubMed feed highlights. We are building a consistent free library and growing this community before anything else.
+    </p>
+    <p class="count">
+      People on the list: <strong id="sub-count" aria-live="polite">—</strong>
+    </p>
+    <div class="benefits">
+      <h2>You will get</h2>
+      <ul>
+        <li>Email when we publish major hub updates or new charts</li>
+        <li>Occasional PubMed roundup (finding → mechanism → implication)</li>
+        <li>No clutter — research and books only; no podcast recaps</li>
+      </ul>
+    </div>
+    <form id="sub-form" novalidate aria-describedby="form-hint">
+      <p id="form-hint" class="lede" style="margin-bottom:0;font-size:0.88rem;">We only use your email for Stonebound updates. Unsubscribe any time.</p>
+      <div>
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" />
+      </div>
+      <button type="submit" id="sub-btn">Join the list</button>
+      <p class="msg" id="sub-msg" aria-live="polite"></p>
+    </form>
+    <p class="foot">
+      Editorial rule stays the same: indexed peer-reviewed work and published books — every claim tied to author, journal, PMID or ISBN.
+    </p>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/stonebound-config.js"></script>
+  <script>
+    (function () {
+      const form = document.getElementById("sub-form");
+      const msg = document.getElementById("sub-msg");
+      const btn = document.getElementById("sub-btn");
+      const countEl = document.getElementById("sub-count");
+      const base = window.STONEBOUND_FUNCTIONS_URL || "";
+
+      async function refreshSubscriberCount() {
+        const url = window.STONEBOUND_SUPABASE_URL;
+        const key = window.STONEBOUND_SUPABASE_ANON_KEY;
+        if (!url || !key || key.includes("YOUR_ANON") || !window.supabase?.createClient) {
+          countEl.textContent = "—";
+          return;
+        }
+        const client = window.supabase.createClient(url, key);
+        const { data, error } = await client.rpc("stonebound_subscriber_count");
+        if (error) {
+          countEl.textContent = "—";
+          return;
+        }
+        const n = typeof data === "number" ? data : Number(data);
+        countEl.textContent = Number.isFinite(n) ? String(n) : "—";
+      }
+
+      refreshSubscriberCount();
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        msg.textContent = "";
+        msg.className = "msg";
+        const email = document.getElementById("email").value.trim();
+        if (!email) {
+          msg.textContent = "Enter a valid email.";
+          msg.classList.add("err");
+          return;
+        }
+        if (!base || base.includes("YOUR_PROJECT")) {
+          msg.textContent = "Configure js/stonebound-config.js with your Supabase Functions URL, then deploy subscribe-lead.";
+          msg.classList.add("err");
+          return;
+        }
+        btn.disabled = true;
+        try {
+          const res = await fetch(base.replace(/\/$/, "") + "/subscribe-lead", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, tier: "free", source: "subscribe_page" }),
+          });
+          const j = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(j.error || res.statusText);
+          msg.textContent = "You’re on the list. We’ll be in touch when there is something worth sending.";
+          msg.classList.add("ok");
+          form.reset();
+          refreshSubscriberCount();
+        } catch (err) {
+          msg.textContent = err.message || "Something went wrong.";
+          msg.classList.add("err");
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

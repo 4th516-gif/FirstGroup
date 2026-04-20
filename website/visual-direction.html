@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Stonebound visual direction — aligned with canonical Sisyphus imagery: Titian, sculpture, myth art." />
+  <title>Visual direction — Stonebound</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/stonebound-shell.css" />
+  <style>
+    :root {
+      --fg: #ebe8e4;
+      --muted: #9a9590;
+      --amber: #e8942d;
+      --teal: #2a9d6e;
+      --border: rgba(62, 54, 46, 0.85);
+      --card: rgba(18, 16, 14, 0.88);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: transparent; color: var(--fg); font-family: "DM Sans", system-ui, sans-serif; min-height: 100vh; line-height: 1.6; }
+    .sb-header {
+      background: rgba(12, 10, 8, 0.88);
+      backdrop-filter: blur(10px);
+      border-bottom-color: var(--border);
+    }
+    .sb-header .brand { font-family: "Barlow Condensed", sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: var(--amber); }
+    .sb-header nav a { color: var(--muted); font-size: 0.9rem; }
+    .sb-header nav a:hover { color: var(--fg); }
+    main { max-width: 720px; margin: 0 auto; padding: 36px 20px 80px; }
+    h1 {
+      font-family: "Barlow Condensed", sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 1.85rem;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+      max-width: 62ch;
+    }
+    section {
+      margin-bottom: 28px;
+      padding: 22px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      border-top: 3px solid var(--amber);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    }
+    section h2 {
+      font-family: "Barlow Condensed", sans-serif;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    section p, section li { color: #c9c4bc; font-size: 0.94rem; }
+    section ul { margin: 10px 0 0 20px; }
+    section li { margin-bottom: 8px; }
+    .ref {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .ref a { color: var(--teal); }
+    code { font-size: 0.85em; background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body class="sb-surface-architecture">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="sb-header">
+    <div class="brand">Stonebound · Visual direction</div>
+    <nav aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="performance.html">Performance</a>
+      <a href="nutrition.html">Nutrition</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="visual-direction.html" aria-current="page">Visual direction</a>
+      <a href="feed.html">PubMed feed</a>
+      <a href="subscribe.html">Subscribe</a>
+    </nav>
+  </header>
+  <main id="main" tabindex="-1">
+    <h1>Visual direction</h1>
+    <p class="sub">
+      This document is <strong>static</strong>: it describes the look and feel we align with — the kinds of images that typically appear in the first screen of a Google image search for “Sisyphus” (classical painting, mythological art, marble sculpture, and modern interpretations). We do not need to refresh it when search results shift.
+    </p>
+
+    <section aria-labelledby="h-search">
+      <h2 id="h-search">What “Sisyphus” search results converge on</h2>
+      <ul>
+        <li><strong>Figure and boulder</strong> — A muscular or strained body against a large stone or sphere; the action is push, carry, or heave uphill.</li>
+        <li><strong>Hill or cliff</strong> — Diagonal ground plane, steep slope, or rocky steps; sense of height and effort.</li>
+        <li><strong>Palette</strong> — Deep umbers, soot, bronze, and stone grey; firelight or hell-mouth reds in painterly versions; occasional cold sky or marble white in sculpture.</li>
+        <li><strong>Light</strong> — Dramatic chiaroscuro (strong light on skin and stone, dark void behind) in oil paintings; even, gallery-like light on white marble.</li>
+        <li><strong>Canon in art history</strong> — Titian’s <em>Sisyphus</em> (Prado) and later symbolist works (e.g. Franz Stuck) recur; they set expectations for “serious” treatment of the myth.</li>
+        <li><strong>Sculpture grammar</strong> — Twisted torso, weight on one leg, veins and strain — the same visual language as Hellenistic athletic statues.</li>
+      </ul>
+      <p class="ref">
+        Reference painting (public domain context): <a href="https://en.wikipedia.org/wiki/Sisyphus_(Titian)" rel="noopener noreferrer" target="_blank">Titian — Sisyphus (Wikipedia)</a> ·
+        Museum: <a href="https://www.museodelprado.es/en/the-collection/art-work/sisyphus/bb56eb47-052f-4e15-8e46-75a3f18b13ad" rel="noopener noreferrer" target="_blank">Museo del Prado — Sisyphus</a>
+      </p>
+    </section>
+
+    <section aria-labelledby="h-stonebound">
+      <h2 id="h-stonebound">How Stonebound applies this</h2>
+      <ul>
+        <li><strong>Performance hub (dark)</strong> — Near-black ground, bronze/amber accent, stone-textured cards; evokes oil painting and underworld fire without copying any single artwork.</li>
+        <li><strong>Nutrition hub (light)</strong> — Warm off-white and marble-like surfaces, deep teal accent; same myth, “human figure” side: clarity, flesh, recovery.</li>
+        <li><strong>Type</strong> — Condensed uppercase for titles (monumental, inscribed); readable sans or serif for body; mono for citations (inscription / catalog).</li>
+        <li><strong>Motion</strong> — Slow, repetitive micro-motion on the landing SVG (boulder and figure) — echo of the eternal task, not entertainment UI noise.</li>
+        <li><strong>No stock-photo pastiche</strong> — We borrow <em>structure and temperature</em> from the image canon, not unlicensed crops of famous paintings.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="h-moodboard">
+      <h2 id="h-moodboard">Internal moodboard URLs</h2>
+      <p>
+        Additional stylistic references (sculpture, bronze, marble tones) are listed in <code>css/stonebound-shell.css</code> comments for designers — same family as classical myth imagery.
+      </p>
+    </section>
+  </main>
+</body>
+</html>
